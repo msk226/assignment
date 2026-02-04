@@ -77,8 +77,8 @@ class RouletteService(
 
     @Transactional
     fun cancelParticipation(participationId: Long) {
-        val participation = participationRepository.findById(participationId)
-            .orElseThrow { ParticipationNotFoundException("참여 기록을 찾을 수 없습니다.") }
+        val participation = participationRepository.findByIdWithLock(participationId)
+            ?: throw ParticipationNotFoundException("참여 기록을 찾을 수 없습니다.")
 
         restoreBudgetIfToday(participation)
         removePointIfExists(participation)
@@ -119,8 +119,22 @@ class RouletteService(
 
     private fun removePointIfExists(participation: RouletteParticipation) {
         val userPoints =
-            pointRepository.findValidPointsByUserId(participation.userId, LocalDateTime.now())
-        userPoints.find { it.amount == participation.points && it.usedAmount == 0 }
-            ?.let { pointRepository.delete(it) }
+            pointRepository.findValidPointsByUserIdWithLock(participation.userId, LocalDateTime.now())
+
+        // 참여 기록과 동일한 금액의 포인트를 찾아 회수
+        // 사용되지 않은 포인트는 삭제, 부분 사용된 포인트는 남은 금액만큼 usedAmount 증가
+        val matchingPoint = userPoints.find {
+            it.amount == participation.points &&
+            it.earnedAt.toLocalDate() == participation.date
+        }
+
+        matchingPoint?.let { point ->
+            if (point.usedAmount == 0) {
+                pointRepository.delete(point)
+            } else {
+                // 부분 사용된 경우, 남은 금액을 모두 사용 처리
+                point.use(point.availableAmount)
+            }
+        }
     }
 }

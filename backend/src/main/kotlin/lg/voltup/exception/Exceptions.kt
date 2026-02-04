@@ -29,3 +29,6 @@ class InsufficientStockException(message: String) : RuntimeException(message)
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 class ProductNotAvailableException(message: String) : RuntimeException(message)
+
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+class OrderAlreadyCancelledException(message: String) : RuntimeException(message)

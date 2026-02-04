@@ -7,6 +7,8 @@ import lg.voltup.entity.User
 import lg.voltup.entity.enums.OrderStatus
 import lg.voltup.exception.InsufficientPointsException
 import lg.voltup.exception.InsufficientStockException
+import lg.voltup.exception.OrderAlreadyCancelledException
+import lg.voltup.exception.OrderNotFoundException
 import lg.voltup.exception.ProductNotAvailableException
 import lg.voltup.exception.ProductNotFoundException
 import lg.voltup.repository.OrderRepository
@@ -226,5 +228,65 @@ class OrderServiceTest @Autowired constructor(
         // 재고 확인
         val updatedProduct = productRepository.findById(testProduct.id).get()
         assertEquals(7, updatedProduct.stock)
+    }
+
+    // cancelOrder 테스트
+    @Test
+    @DisplayName("주문을 취소하면 포인트가 환불된다")
+    fun cancelOrder_shouldRefundPoints() {
+        val request = OrderCreateRequest(productId = testProduct.id)
+        val order = orderService.createOrder(testUser.id, request)
+
+        val balanceBeforeCancel = pointRepository.getAvailableBalance(testUser.id, LocalDateTime.now())
+
+        orderService.cancelOrder(order.id)
+
+        val balanceAfterCancel = pointRepository.getAvailableBalance(testUser.id, LocalDateTime.now())
+        assertEquals(balanceBeforeCancel + testProduct.price, balanceAfterCancel)
+    }
+
+    @Test
+    @DisplayName("주문을 취소하면 재고가 복구된다")
+    fun cancelOrder_shouldRestoreStock() {
+        val request = OrderCreateRequest(productId = testProduct.id)
+        val order = orderService.createOrder(testUser.id, request)
+
+        val stockBeforeCancel = productRepository.findById(testProduct.id).get().stock
+
+        orderService.cancelOrder(order.id)
+
+        val stockAfterCancel = productRepository.findById(testProduct.id).get().stock
+        assertEquals(stockBeforeCancel + 1, stockAfterCancel)
+    }
+
+    @Test
+    @DisplayName("주문 취소 후 상태가 CANCELLED로 변경된다")
+    fun cancelOrder_shouldChangeStatusToCancelled() {
+        val request = OrderCreateRequest(productId = testProduct.id)
+        val order = orderService.createOrder(testUser.id, request)
+
+        val cancelledOrder = orderService.cancelOrder(order.id)
+
+        assertEquals(OrderStatus.CANCELLED, cancelledOrder.status)
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 주문을 취소하면 예외가 발생한다")
+    fun cancelOrder_shouldThrowExceptionWhenOrderNotFound() {
+        assertThrows<OrderNotFoundException> {
+            orderService.cancelOrder(9999L)
+        }
+    }
+
+    @Test
+    @DisplayName("이미 취소된 주문을 다시 취소하면 예외가 발생한다")
+    fun cancelOrder_shouldThrowExceptionWhenAlreadyCancelled() {
+        val request = OrderCreateRequest(productId = testProduct.id)
+        val order = orderService.createOrder(testUser.id, request)
+        orderService.cancelOrder(order.id)
+
+        assertThrows<OrderAlreadyCancelledException> {
+            orderService.cancelOrder(order.id)
+        }
     }
 }
