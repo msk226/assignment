@@ -1,6 +1,7 @@
 package lg.voltup.entity
 
 import jakarta.persistence.*
+import lg.voltup.exception.BudgetExhaustedException
 import java.time.LocalDate
 
 @Entity
@@ -24,5 +25,32 @@ class DailyBudget private constructor(
                 totalBudget = totalBudget
             )
         }
+    }
+
+    val remainingBudget: Int
+        get() = totalBudget - usedBudget
+
+    val isExhausted: Boolean
+        get() = remainingBudget <= 0
+
+    fun calculateDistributablePoints(requestedMax: Int = 1000, requestedMin: Int = 100): Int {
+        if (isExhausted) {
+            throw BudgetExhaustedException("오늘 예산이 소진되었습니다.")
+        }
+        val maxDistributable = minOf(requestedMax, remainingBudget)
+        return if (maxDistributable < requestedMin) maxDistributable else maxDistributable
+    }
+
+    fun distribute(points: Int) {
+        require(points > 0) { "지급 포인트는 0보다 커야 합니다." }
+        if (points > remainingBudget) {
+            throw BudgetExhaustedException("잔여 예산이 부족합니다.")
+        }
+        usedBudget += points
+    }
+
+    fun restore(points: Int) {
+        require(points > 0) { "복구 포인트는 0보다 커야 합니다." }
+        usedBudget = maxOf(0, usedBudget - points)
     }
 }
