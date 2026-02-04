@@ -42,4 +42,10 @@ class Order private constructor(
             )
         }
     }
+
+    val isCancelled: Boolean
+        get() = status == OrderStatus.CANCELLED
+
+    val isCancellable: Boolean
+        get() = !isCancelled
 }
