@@ -36,4 +36,11 @@ class GlobalExceptionHandler {
             ErrorResponse(status = 400, error = "Budget Exhausted", message = e.message)
         )
     }
+
+    @ExceptionHandler(ParticipationNotFoundException::class)
+    fun handleParticipationNotFound(e: ParticipationNotFoundException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            ErrorResponse(status = 404, error = "Participation Not Found", message = e.message)
+        )
+    }
 }
