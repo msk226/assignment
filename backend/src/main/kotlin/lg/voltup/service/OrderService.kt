@@ -3,8 +3,10 @@ package lg.voltup.service
 import lg.voltup.controller.dto.OrderCreateRequest
 import lg.voltup.controller.dto.OrderResponse
 import lg.voltup.entity.Order
+import lg.voltup.entity.Point
 import lg.voltup.entity.Product
 import lg.voltup.exception.InsufficientPointsException
+import lg.voltup.exception.OrderNotFoundException
 import lg.voltup.exception.ProductNotFoundException
 import lg.voltup.repository.OrderRepository
 import lg.voltup.repository.PointRepository
@@ -20,6 +22,10 @@ class OrderService(
     private val pointRepository: PointRepository
 ) {
 
+    fun getAllOrders(): List<OrderResponse> {
+        return orderRepository.findAllByOrderByCreatedAtDesc().map { it.toResponse() }
+    }
+    
     @Transactional
     fun createOrder(userId: Long, request: OrderCreateRequest): OrderResponse {
         // 1. 상품 조회 (비관적 락 적용)
@@ -48,13 +54,38 @@ class OrderService(
         return orderRepository.findAllByUserIdOrderByCreatedAtDesc(userId).map { it.toResponse() }
     }
 
+    @Transactional
+    fun cancelOrder(orderId: Long): OrderResponse {
+        val order = findOrderById(orderId)
+        order.cancel()
+
+        refundPoints(order.userId, order.pointsUsed)
+        restoreProductStock(order.productId)
+
+        return order.toResponse()
+    }
+
+    private fun findOrderById(orderId: Long): Order {
+        return orderRepository.findById(orderId)
+            .orElseThrow { OrderNotFoundException("주문을 찾을 수 없습니다.") }
+    }
+
+    private fun refundPoints(userId: Long, amount: Int) {
+        pointRepository.save(Point.createWithDefaultExpiry(userId, amount))
+    }
+
+    private fun restoreProductStock(productId: Long) {
+        productRepository.findById(productId).ifPresent { it.restoreStock() }
+    }
+
     private fun findProductByIdWithLock(productId: Long): Product {
         return productRepository.findByIdWithLock(productId)
             ?: throw ProductNotFoundException("상품을 찾을 수 없습니다.")
     }
 
     private fun deductPointsWithValidation(userId: Long, requiredAmount: Int) {
-        val validPoints = pointRepository.findValidPointsByUserIdWithLock(userId, LocalDateTime.now())
+        val validPoints =
+            pointRepository.findValidPointsByUserIdWithLock(userId, LocalDateTime.now())
         val availableBalance = validPoints.sumOf { it.availableAmount }
 
         if (availableBalance < requiredAmount) {

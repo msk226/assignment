@@ -78,4 +78,11 @@ class GlobalExceptionHandler {
             ErrorResponse(status = 400, error = "Product Not Available", message = e.message)
         )
     }
+
+    @ExceptionHandler(OrderAlreadyCancelledException::class)
+    fun handleOrderAlreadyCancelled(e: OrderAlreadyCancelledException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            ErrorResponse(status = 400, error = "Order Already Cancelled", message = e.message)
+        )
+    }
 }

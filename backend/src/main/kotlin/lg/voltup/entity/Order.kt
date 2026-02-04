@@ -2,6 +2,7 @@ package lg.voltup.entity
 
 import jakarta.persistence.*
 import lg.voltup.entity.enums.OrderStatus
+import lg.voltup.exception.OrderAlreadyCancelledException
 import java.time.LocalDateTime
 
 @Entity
@@ -48,4 +49,11 @@ class Order private constructor(
 
     val isCancellable: Boolean
         get() = !isCancelled
+
+    fun cancel() {
+        if (isCancelled) {
+            throw OrderAlreadyCancelledException("이미 취소된 주문입니다.")
+        }
+        status = OrderStatus.CANCELLED
+    }
 }
