@@ -2,6 +2,7 @@ package lg.voltup.entity
 
 import jakarta.persistence.*
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 @Entity
 @Table(name = "points")
@@ -36,5 +37,22 @@ class Point private constructor(
         fun createWithDefaultExpiry(userId: Long, amount: Int): Point {
             return create(userId, amount, LocalDateTime.now().plusDays(DEFAULT_EXPIRY_DAYS))
         }
+    }
+
+    val availableAmount: Int
+        get() = amount - usedAmount
+
+    val isExpired: Boolean
+        get() = LocalDateTime.now().isAfter(expiresAt)
+
+    val isUsable: Boolean
+        get() = !isExpired && availableAmount > 0
+
+    val daysUntilExpiry: Long
+        get() = if (isExpired) 0 else ChronoUnit.DAYS.between(LocalDateTime.now(), expiresAt)
+
+    fun isExpiringWithin(days: Long): Boolean {
+        if (isExpired) return false
+        return daysUntilExpiry <= days
     }
 }
