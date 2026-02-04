@@ -216,4 +216,72 @@ class DailyBudgetTest {
 
         assertEquals(0, dailyBudget.usedBudget)
     }
+
+    // calculateDistributablePoints - 최소 포인트 미만 테스트
+    @Test
+    fun `calculateDistributablePoints는 잔여 예산이 최소 요청 금액 미만이면 예외를 던진다`() {
+        val dailyBudget = DailyBudget.create(LocalDate.now(), 100000)
+        dailyBudget.usedBudget = 99950 // 잔여 50p
+
+        val exception = assertThrows<BudgetExhaustedException> {
+            dailyBudget.calculateDistributablePoints(1000, 100)
+        }
+
+        assertEquals("오늘 예산이 소진되었습니다.", exception.message)
+    }
+
+    @Test
+    fun `calculateDistributablePoints는 잔여 예산이 정확히 최소 요청 금액이면 해당 금액을 반환한다`() {
+        val dailyBudget = DailyBudget.create(LocalDate.now(), 100000)
+        dailyBudget.usedBudget = 99900 // 잔여 100p
+
+        val distributable = dailyBudget.calculateDistributablePoints(1000, 100)
+
+        assertEquals(100, distributable)
+    }
+
+    // updateTotalBudget 테스트
+    @Test
+    fun `updateTotalBudget으로 예산을 변경할 수 있다`() {
+        val dailyBudget = DailyBudget.create(LocalDate.now(), 100000)
+
+        dailyBudget.updateTotalBudget(200000)
+
+        assertEquals(200000, dailyBudget.totalBudget)
+    }
+
+    @Test
+    fun `updateTotalBudget으로 예산을 줄일 수 있다`() {
+        val dailyBudget = DailyBudget.create(LocalDate.now(), 100000)
+        dailyBudget.usedBudget = 30000
+
+        dailyBudget.updateTotalBudget(50000)
+
+        assertEquals(50000, dailyBudget.totalBudget)
+        assertEquals(20000, dailyBudget.remainingBudget)
+    }
+
+    @Test
+    fun `updateTotalBudget에서 새 예산이 사용된 예산보다 작으면 예외가 발생한다`() {
+        val dailyBudget = DailyBudget.create(LocalDate.now(), 100000)
+        dailyBudget.usedBudget = 50000
+
+        val exception = assertThrows<IllegalArgumentException> {
+            dailyBudget.updateTotalBudget(30000)
+        }
+
+        assertTrue(exception.message!!.contains("이미 사용된 예산"))
+    }
+
+    @Test
+    fun `updateTotalBudget에서 새 예산이 사용된 예산과 같으면 설정 가능하다`() {
+        val dailyBudget = DailyBudget.create(LocalDate.now(), 100000)
+        dailyBudget.usedBudget = 50000
+
+        dailyBudget.updateTotalBudget(50000)
+
+        assertEquals(50000, dailyBudget.totalBudget)
+        assertEquals(0, dailyBudget.remainingBudget)
+        assertTrue(dailyBudget.isExhausted)
+    }
 }
