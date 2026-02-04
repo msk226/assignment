@@ -1,6 +1,8 @@
 package lg.voltup.entity
 
 import jakarta.persistence.*
+import lg.voltup.exception.InsufficientStockException
+import lg.voltup.exception.ProductNotAvailableException
 import java.time.LocalDateTime
 
 @Entity
@@ -48,4 +50,22 @@ class Product private constructor(
             )
         }
     }
+
+    fun validatePurchasable() {
+        if (!isActive) {
+            throw ProductNotAvailableException("판매 중인 상품이 아닙니다.")
+        }
+        if (stock <= 0) {
+            throw InsufficientStockException("재고가 부족합니다.")
+        }
+    }
+
+    fun purchase() {
+        if (stock <= 0) {
+            throw InsufficientStockException("재고가 부족합니다.")
+        }
+        stock -= 1
+        updatedAt = LocalDateTime.now()
+    }
+
 }

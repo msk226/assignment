@@ -55,4 +55,13 @@ class Point private constructor(
         if (isExpired) return false
         return daysUntilExpiry <= days
     }
+
+    fun use(requestedAmount: Int): Int {
+        require(requestedAmount > 0) { "사용 포인트는 0보다 커야 합니다." }
+        if (!isUsable) return 0
+
+        val actualUsage = minOf(requestedAmount, availableAmount)
+        usedAmount += actualUsage
+        return actualUsage
+    }
 }
