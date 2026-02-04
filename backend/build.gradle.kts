@@ -39,8 +39,11 @@ dependencies {
     // Swagger / OpenAPI
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 
-    // H2 Database
+    // H2 Database (개발용)
     runtimeOnly("com.h2database:h2")
+
+    // PostgreSQL (운영용)
+    runtimeOnly("org.postgresql:postgresql")
 }
 
 kotlin {
