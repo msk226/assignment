@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // VITE_API_URL이 없으면 기본적으로 localhost:8080을 사용합니다.
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const baseURL = import.meta.env.VITE_API_URL || 'https://assignment-ybpt.onrender.com/';
 
 export const apiClient = axios.create({
   baseURL,
