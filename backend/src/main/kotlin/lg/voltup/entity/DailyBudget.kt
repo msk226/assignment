@@ -14,7 +14,8 @@ class DailyBudget private constructor(
     @Column(unique = true, nullable = false)
     val date: LocalDate,
 
-    val totalBudget: Int = 100000,
+    @Column(nullable = false)
+    var totalBudget: Int = 100000,
 
     var usedBudget: Int = 0
 ) {
@@ -34,11 +35,15 @@ class DailyBudget private constructor(
         get() = remainingBudget <= 0
 
     fun calculateDistributablePoints(requestedMax: Int = 1000, requestedMin: Int = 100): Int {
-        if (isExhausted) {
+        if (isExhausted || remainingBudget < requestedMin) {
             throw BudgetExhaustedException("오늘 예산이 소진되었습니다.")
         }
-        val maxDistributable = minOf(requestedMax, remainingBudget)
-        return if (maxDistributable < requestedMin) maxDistributable else maxDistributable
+        return minOf(requestedMax, remainingBudget)
+    }
+
+    fun updateTotalBudget(newBudget: Int) {
+        require(newBudget >= usedBudget) { "새 예산은 이미 사용된 예산(${usedBudget}p)보다 작을 수 없습니다." }
+        totalBudget = newBudget
     }
 
     fun distribute(points: Int) {

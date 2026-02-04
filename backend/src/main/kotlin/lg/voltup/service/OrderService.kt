@@ -56,26 +56,26 @@ class OrderService(
 
     @Transactional
     fun cancelOrder(orderId: Long): OrderResponse {
-        val order = findOrderById(orderId)
+        val order = findOrderByIdWithLock(orderId)
         order.cancel()
 
         refundPoints(order.userId, order.pointsUsed)
-        restoreProductStock(order.productId)
+        restoreProductStockWithLock(order.productId)
 
         return order.toResponse()
     }
 
-    private fun findOrderById(orderId: Long): Order {
-        return orderRepository.findById(orderId)
-            .orElseThrow { OrderNotFoundException("주문을 찾을 수 없습니다.") }
+    private fun findOrderByIdWithLock(orderId: Long): Order {
+        return orderRepository.findByIdWithLock(orderId)
+            ?: throw OrderNotFoundException("주문을 찾을 수 없습니다.")
     }
 
     private fun refundPoints(userId: Long, amount: Int) {
         pointRepository.save(Point.createWithDefaultExpiry(userId, amount))
     }
 
-    private fun restoreProductStock(productId: Long) {
-        productRepository.findById(productId).ifPresent { it.restoreStock() }
+    private fun restoreProductStockWithLock(productId: Long) {
+        productRepository.findByIdWithLock(productId)?.restoreStock()
     }
 
     private fun findProductByIdWithLock(productId: Long): Product {

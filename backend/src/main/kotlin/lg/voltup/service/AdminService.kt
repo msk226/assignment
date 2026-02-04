@@ -27,6 +27,7 @@ class AdminService(
         val budget = dailyBudgetRepository.findByDateWithLock(today)
             ?: dailyBudgetRepository.save(DailyBudget.create(today, request.totalBudget))
 
+        budget.updateTotalBudget(request.totalBudget)
         return budget.toResponse()
     }
 
@@ -49,7 +50,7 @@ class AdminService(
 
     private fun getOrCreateTodayBudget(): DailyBudget {
         return dailyBudgetRepository.findByDate(LocalDate.now())
-            ?: DailyBudget.create(LocalDate.now())
+            ?: dailyBudgetRepository.save(DailyBudget.create(LocalDate.now()))
     }
 
     private fun DailyBudget.toResponse() = BudgetResponse(
