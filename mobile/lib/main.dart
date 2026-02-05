@@ -60,6 +60,15 @@ class _WebViewScreenState extends State<WebViewScreen> {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(AppColors.background)
+      ..setOnJavaScriptAlertDialog((request) async {
+        await _showAlert(request.message);
+      })
+      ..setOnJavaScriptConfirmDialog((request) async {
+        return _showConfirm(request.message);
+      })
+      ..setOnJavaScriptTextInputDialog((request) async {
+        return _showPrompt(request.message, request.defaultText);
+      })
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageStarted: (_) {
@@ -92,6 +101,87 @@ class _WebViewScreenState extends State<WebViewScreen> {
       return;
     }
     SystemNavigator.pop();
+  }
+
+  Future<void> _showAlert(String message) async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('알림'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> _showConfirm(String message) async {
+    if (!mounted) return false;
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('확인'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+    return result ?? false;
+  }
+
+  Future<String> _showPrompt(String message, String? defaultText) async {
+    if (!mounted) return '';
+    final controller = TextEditingController(text: defaultText ?? '');
+    final result = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('입력'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(message),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                autofocus: true,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(''),
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(controller.text),
+              child: const Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+    return result ?? '';
   }
 
   @override
