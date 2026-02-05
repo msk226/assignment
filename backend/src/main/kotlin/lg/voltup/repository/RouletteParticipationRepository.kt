@@ -31,4 +31,7 @@ interface RouletteParticipationRepository : JpaRepository<RouletteParticipation,
 
     @Query("SELECT COUNT(r) FROM RouletteParticipation r WHERE r.date = :date AND r.cancelledAt IS NULL")
     fun countActiveByDate(date: LocalDate): Long
+
+    @Query("SELECT COALESCE(SUM(r.points), 0) FROM RouletteParticipation r WHERE r.date = :date AND r.cancelledAt IS NULL")
+    fun sumPointsByDate(date: LocalDate): Int
 }

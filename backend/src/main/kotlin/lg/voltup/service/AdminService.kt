@@ -16,6 +16,7 @@ class AdminService(
     private val participationRepository: RouletteParticipationRepository
 ) {
 
+    @Transactional(readOnly = true)
     fun getTodayBudget(): BudgetResponse {
         val budget = getOrCreateTodayBudget()
         return budget.toResponse()
@@ -31,12 +32,12 @@ class AdminService(
         return budget.toResponse()
     }
 
+    @Transactional(readOnly = true)
     fun getDashboard(): DashboardResponse {
         val today = LocalDate.now()
         val budget = getOrCreateTodayBudget()
-        val participantCount = participationRepository.countByDate(today)
-        val totalPointsDistributed =
-            participationRepository.findAllByDate(today).sumOf { it.points }
+        val participantCount = participationRepository.countActiveByDate(today)
+        val totalPointsDistributed = participationRepository.sumPointsByDate(today)
 
         return DashboardResponse(
             date = today,

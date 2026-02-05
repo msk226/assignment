@@ -2,6 +2,7 @@ package lg.voltup.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import lg.voltup.controller.dto.*
 import lg.voltup.service.AdminService
 import lg.voltup.service.OrderService
@@ -36,7 +37,7 @@ class AdminController(
 
     @Operation(summary = "예산 설정", description = "오늘의 일일 예산을 설정합니다.")
     @PutMapping("/budget")
-    fun updateBudget(@RequestBody request: BudgetUpdateRequest): ResponseEntity<BudgetResponse> {
+    fun updateBudget(@Valid @RequestBody request: BudgetUpdateRequest): ResponseEntity<BudgetResponse> {
         return ResponseEntity.ok(adminService.updateTodayBudget(request))
     }
 
@@ -62,7 +63,7 @@ class AdminController(
 
     @Operation(summary = "상품 등록", description = "새 상품을 등록합니다.")
     @PostMapping("/products")
-    fun createProduct(@RequestBody request: ProductCreateRequest): ResponseEntity<ProductResponse> {
+    fun createProduct(@Valid @RequestBody request: ProductCreateRequest): ResponseEntity<ProductResponse> {
         return ResponseEntity.ok(productService.createProduct(request))
     }
 
@@ -70,7 +71,7 @@ class AdminController(
     @PutMapping("/products/{productId}")
     fun updateProduct(
         @PathVariable productId: Long,
-        @RequestBody request: ProductUpdateRequest
+        @Valid @RequestBody request: ProductUpdateRequest
     ): ResponseEntity<ProductResponse> {
         return ResponseEntity.ok(productService.updateProduct(productId, request))
     }

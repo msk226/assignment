@@ -2,6 +2,7 @@ package lg.voltup.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import lg.voltup.controller.dto.OrderCreateRequest
 import lg.voltup.controller.dto.OrderResponse
 import lg.voltup.service.OrderService
@@ -19,7 +20,7 @@ class OrderController(
     @PostMapping
     fun createOrder(
         @RequestHeader("X-User-Id") userId: Long,
-        @RequestBody request: OrderCreateRequest
+        @Valid @RequestBody request: OrderCreateRequest
     ): ResponseEntity<OrderResponse> {
         return ResponseEntity.ok(orderService.createOrder(userId, request))
     }

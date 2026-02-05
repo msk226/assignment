@@ -51,6 +51,7 @@ class RouletteService(
         )
     }
 
+    @Transactional(readOnly = true)
     fun getStatus(userId: Long): RouletteStatusResponse {
         val today = LocalDate.now()
         val budget = dailyBudgetRepository.findByDate(today)
@@ -65,6 +66,7 @@ class RouletteService(
         )
     }
 
+    @Transactional(readOnly = true)
     fun getTodayParticipations(): List<RouletteParticipationResponse> {
         val today = LocalDate.now()
         return participationRepository.findAllByDate(today).map { participation ->
@@ -89,6 +91,7 @@ class RouletteService(
         participationRepository.delete(participation)
     }
 
+    @Transactional(readOnly = true)
     fun getUserHistory(userId: Long): List<RouletteHistoryResponse> {
         return participationRepository.findAllByUserIdOrderByCreatedAtDesc(userId).map { participation ->
             val point = findMatchingPoint(participation)

@@ -1,5 +1,6 @@
 package lg.voltup.controller.dto
 
+import jakarta.validation.constraints.Positive
 import java.time.LocalDate
 
 data class BudgetResponse(
@@ -10,6 +11,7 @@ data class BudgetResponse(
 )
 
 data class BudgetUpdateRequest(
+    @field:Positive(message = "예산은 양수여야 합니다.")
     val totalBudget: Int
 )
 
