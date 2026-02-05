@@ -20,7 +20,9 @@ data class RouletteParticipationResponse(
     val userId: Long,
     val nickname: String?,
     val points: Int,
-    val createdAt: LocalDateTime
+    val status: String,
+    val createdAt: LocalDateTime,
+    val cancelledAt: LocalDateTime?
 )
 
 data class RouletteHistoryResponse(

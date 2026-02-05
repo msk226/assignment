@@ -149,8 +149,8 @@ class RouletteServiceTest @Autowired constructor(
     }
 
     @Test
-    @DisplayName("룰렛 참여 취소 시 참여 기록이 삭제된다")
-    fun cancelParticipation_shouldDeleteParticipation() {
+    @DisplayName("룰렛 참여 취소 시 참여 기록이 취소 상태로 변경된다")
+    fun cancelParticipation_shouldMarkAsCancel() {
         rouletteService.spinRoulette(testUser.id)
 
         val participation = participationRepository.findByUserIdAndDate(testUser.id, LocalDate.now())
@@ -158,8 +158,9 @@ class RouletteServiceTest @Autowired constructor(
 
         rouletteService.cancelParticipation(participation.id)
 
-        val deletedParticipation = participationRepository.findByUserIdAndDate(testUser.id, LocalDate.now())
-        assertEquals(null, deletedParticipation)
+        val cancelledParticipation = participationRepository.findByUserIdAndDate(testUser.id, LocalDate.now())
+        assertNotNull(cancelledParticipation)
+        assertTrue(cancelledParticipation.isCancelled)
     }
 
     @Test
@@ -173,17 +174,34 @@ class RouletteServiceTest @Autowired constructor(
     }
 
     @Test
-    @DisplayName("참여 취소 후 다시 참여할 수 있다")
-    fun cancelParticipation_shouldAllowReParticipation() {
-        val firstResult = rouletteService.spinRoulette(testUser.id)
+    @DisplayName("참여 취소 후에도 당일 재참여할 수 없다")
+    fun cancelParticipation_shouldNotAllowReParticipation() {
+        rouletteService.spinRoulette(testUser.id)
 
         val participation = participationRepository.findByUserIdAndDate(testUser.id, LocalDate.now())
         assertNotNull(participation)
         rouletteService.cancelParticipation(participation.id)
 
-        // 다시 참여 가능
-        val secondResult = rouletteService.spinRoulette(testUser.id)
-        assertTrue(secondResult.points in 100..1000)
+        val exception = assertThrows<AlreadyParticipatedException> {
+            rouletteService.spinRoulette(testUser.id)
+        }
+
+        assertEquals("오늘 이미 참여했습니다.", exception.message)
+    }
+
+    @Test
+    @DisplayName("이미 취소된 참여를 다시 취소하면 예외가 발생한다 (일반 취소)")
+    fun cancelParticipation_shouldThrowExceptionWhenAlreadyCancelled() {
+        rouletteService.spinRoulette(testUser.id)
+        val participation = participationRepository.findByUserIdAndDate(testUser.id, LocalDate.now())!!
+
+        rouletteService.cancelParticipation(participation.id)
+
+        val exception = assertThrows<ParticipationAlreadyCancelledException> {
+            rouletteService.cancelParticipation(participation.id)
+        }
+
+        assertEquals("이미 취소된 참여입니다.", exception.message)
     }
 
     @Test
@@ -329,5 +347,34 @@ class RouletteServiceTest @Autowired constructor(
         assertEquals(1, history.size)
         assertEquals(false, history[0].isCancelled)
         assertEquals(false, history[0].isCancellable)
+    }
+
+    // === 관리자용 참여 내역 조회 테스트 ===
+
+    @Test
+    @DisplayName("관리자 참여 내역 조회 시 상태가 PARTICIPATED로 표시된다")
+    fun getTodayParticipations_shouldShowParticipatedStatus() {
+        rouletteService.spinRoulette(testUser.id)
+
+        val participations = rouletteService.getTodayParticipations()
+
+        assertEquals(1, participations.size)
+        assertEquals("PARTICIPATED", participations[0].status)
+        assertEquals(null, participations[0].cancelledAt)
+    }
+
+    @Test
+    @DisplayName("관리자 참여 내역 조회 시 취소된 참여는 CANCELLED로 표시된다")
+    fun getTodayParticipations_shouldShowCancelledStatus() {
+        rouletteService.spinRoulette(testUser.id)
+        val participation = participationRepository.findByUserIdAndDate(testUser.id, LocalDate.now())!!
+
+        rouletteService.cancelParticipationByAdmin(participation.id)
+
+        val participations = rouletteService.getTodayParticipations()
+
+        assertEquals(1, participations.size)
+        assertEquals("CANCELLED", participations[0].status)
+        assertNotNull(participations[0].cancelledAt)
     }
 }

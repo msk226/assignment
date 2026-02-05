@@ -2,9 +2,13 @@ package lg.voltup.entity
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class RouletteParticipationTest {
 
@@ -37,5 +41,43 @@ class RouletteParticipationTest {
         val participation = RouletteParticipation.create(1L, LocalDate.now(), 0)
 
         assertEquals(0, participation.points)
+    }
+
+    @Test
+    fun `룰렛 참여 생성 시 상태는 PARTICIPATED로 초기화된다`() {
+        val participation = RouletteParticipation.create(1L, LocalDate.now(), 100)
+
+        assertEquals(ParticipationStatus.PARTICIPATED, participation.status)
+        assertFalse(participation.isCancelled)
+    }
+
+    @Test
+    fun `룰렛 참여를 취소하면 상태가 CANCELLED로 변경된다`() {
+        val participation = RouletteParticipation.create(1L, LocalDate.now(), 100)
+
+        participation.cancel()
+
+        assertEquals(ParticipationStatus.CANCELLED, participation.status)
+        assertTrue(participation.isCancelled)
+        assertNotNull(participation.cancelledAt)
+    }
+
+    @Test
+    fun `이미 취소된 참여를 다시 취소하면 예외가 발생한다`() {
+        val participation = RouletteParticipation.create(1L, LocalDate.now(), 100)
+        participation.cancel()
+
+        val exception = assertThrows<IllegalStateException> {
+            participation.cancel()
+        }
+
+        assertEquals("이미 취소된 참여입니다.", exception.message)
+    }
+
+    @Test
+    fun `취소되지 않은 참여의 cancelledAt은 null이다`() {
+        val participation = RouletteParticipation.create(1L, LocalDate.now(), 100)
+
+        assertNull(participation.cancelledAt)
     }
 }
