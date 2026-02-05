@@ -37,6 +37,16 @@ export interface DashboardStats {
     totalPointsDistributed: number;
 }
 
+export interface RouletteParticipation {
+    id: number;
+    userId: number;
+    nickname: string;
+    points: number;
+    status: 'PARTICIPATED' | 'CANCELLED';
+    createdAt: string;
+    cancelledAt: string | null;
+}
+
 // 예산 관련 API
 export const budgetApi = {
     getBudget: (date?: string) => apiClient.get<Budget>(`/api/admin/budget`, { params: { date } }).then(res => res.data),
@@ -55,6 +65,12 @@ export const productApi = {
 export const orderApi = {
     getOrders: () => apiClient.get<Order[]>('/api/admin/orders').then(res => res.data),
     cancelOrder: (id: number) => apiClient.delete(`/api/admin/orders/${id}`).then(res => res.data),
+};
+
+// 룰렛 관련 API
+export const rouletteApi = {
+    getRouletteList: () => apiClient.get<RouletteParticipation[]>('/api/admin/roulette').then(res => res.data),
+    cancelRoulette: (id: number) => apiClient.post(`/api/admin/roulette/${id}/cancel`).then(res => res.data),
 };
 
 // 대시보드 관련 API

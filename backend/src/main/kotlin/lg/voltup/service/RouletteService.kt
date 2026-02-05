@@ -76,7 +76,9 @@ class RouletteService(
                 userId = participation.userId,
                 nickname = user?.nickname,
                 points = participation.points,
-                createdAt = participation.createdAt
+                status = participation.status.name,
+                createdAt = participation.createdAt,
+                cancelledAt = participation.cancelledAt
             )
         }
     }
@@ -86,9 +88,13 @@ class RouletteService(
         val participation = participationRepository.findByIdWithLock(participationId)
             ?: throw ParticipationNotFoundException("참여 기록을 찾을 수 없습니다.")
 
+        if (participation.isCancelled) {
+            throw ParticipationAlreadyCancelledException("이미 취소된 참여입니다.")
+        }
+
+        participation.cancel()
         restoreBudgetIfToday(participation)
         removePointIfExists(participation)
-        participationRepository.delete(participation)
     }
 
     @Transactional(readOnly = true)

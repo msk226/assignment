@@ -11,18 +11,18 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Service
+@Transactional
 class AdminService(
     private val dailyBudgetRepository: DailyBudgetRepository,
     private val participationRepository: RouletteParticipationRepository
 ) {
 
-    @Transactional(readOnly = true)
+
     fun getTodayBudget(): BudgetResponse {
         val budget = getOrCreateTodayBudget()
         return budget.toResponse()
     }
 
-    @Transactional
     fun updateTodayBudget(request: BudgetUpdateRequest): BudgetResponse {
         val today = LocalDate.now()
         val budget = dailyBudgetRepository.findByDateWithLock(today)
@@ -32,7 +32,6 @@ class AdminService(
         return budget.toResponse()
     }
 
-    @Transactional(readOnly = true)
     fun getDashboard(): DashboardResponse {
         val today = LocalDate.now()
         val budget = getOrCreateTodayBudget()

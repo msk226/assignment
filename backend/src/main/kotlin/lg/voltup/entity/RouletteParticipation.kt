@@ -23,6 +23,10 @@ class RouletteParticipation private constructor(
 
     val points: Int,
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var status: ParticipationStatus = ParticipationStatus.PARTICIPATED,
+
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     var cancelledAt: LocalDateTime? = null
@@ -32,16 +36,18 @@ class RouletteParticipation private constructor(
             return RouletteParticipation(
                 userId = userId,
                 date = date,
-                points = points
+                points = points,
+                status = ParticipationStatus.PARTICIPATED
             )
         }
     }
 
     val isCancelled: Boolean
-        get() = cancelledAt != null
+        get() = status == ParticipationStatus.CANCELLED
 
     fun cancel() {
         check(!isCancelled) { "이미 취소된 참여입니다." }
+        status = ParticipationStatus.CANCELLED
         cancelledAt = LocalDateTime.now()
     }
 }

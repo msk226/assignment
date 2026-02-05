@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // 백엔드 API URL 설정 (환경 변수 또는 기본값)
-const baseURL = import.meta.env.VITE_API_URL || 'https://assignment-ybpt.onrender.com/';
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
 
 export const apiClient = axios.create({
     baseURL,
