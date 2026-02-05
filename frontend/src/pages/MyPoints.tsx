@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api/client';
 import { Clock, CheckCircle2, AlertTriangle } from 'lucide-react';
@@ -14,6 +14,7 @@ interface PointItem {
     expiresAt: string;
     isExpired: boolean;
     daysUntilExpiry: number;
+    status: 'EARNED' | 'EXPIRED' | 'CANCELED';
 }
 
 interface PointBalance {
@@ -23,12 +24,14 @@ interface PointBalance {
 
 const MyPoints: React.FC = () => {
     const { } = useAuth();
+    const [filterStatus, setFilterStatus] = useState("");
 
     // Fetch user's point list
     const { data: points, isLoading: isPointsLoading } = useQuery<PointItem[]>({
-        queryKey: ['points'],
+        queryKey: ['points', filterStatus],
         queryFn: async () => {
-            const res = await apiClient.get('/api/points');
+            const params = filterStatus ? { status: filterStatus } : {};
+            const res = await apiClient.get('/api/points', { params });
             return res.data;
         }
     });
@@ -71,12 +74,24 @@ const MyPoints: React.FC = () => {
 
             {/* Points History List */}
             <div className="px-4">
-                <h3 className="text-lg font-bold text-gray-800 mb-3 px-1">포인트 내역</h3>
+                <div className="flex justify-between items-center mb-3 px-1">
+                    <h3 className="text-lg font-bold text-gray-800">포인트 내역</h3>
+                    <select
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                        className="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-primary focus:border-primary block p-2"
+                    >
+                        <option value="">전체</option>
+                        <option value="EARNED">적립됨</option>
+                        <option value="EXPIRED">만료됨</option>
+                        <option value="CANCELED">취소됨</option>
+                    </select>
+                </div>
 
                 <div className="space-y-3">
                     {points?.length === 0 ? (
                         <div className="text-center py-10 text-gray-500 text-sm bg-white rounded-xl shadow-sm">
-                            아직 획득한 포인트가 없습니다.
+                            내역이 없습니다.
                         </div>
                     ) : (
                         points?.map((point) => (
@@ -84,21 +99,23 @@ const MyPoints: React.FC = () => {
                                 key={point.id}
                                 className={cn(
                                     "bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center relative overflow-hidden",
-                                    point.isExpired ? "opacity-60 grayscale" : ""
+                                    point.isExpired || point.status === 'CANCELED' || point.status === 'EXPIRED' ? "opacity-60 grayscale" : ""
                                 )}
                             >
                                 <div className="flex items-center gap-3">
                                     <div className={cn(
                                         "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                                        point.isExpired ? "bg-gray-100" : "bg-primary text-gray-900"
+                                        point.status === 'EARNED' ? "bg-primary text-gray-900" : "bg-gray-100 text-gray-400"
                                     )}>
-                                        <CheckCircle2 size={20} className={point.isExpired ? "text-gray-400" : "text-gray-900"} />
+                                        <CheckCircle2 size={20} />
                                     </div>
                                     <div>
                                         <div className="font-bold text-sm bg-primary text-gray-900 px-3 py-1 rounded-full inline-block mb-1">
                                             +{point.amount.toLocaleString()} P
                                         </div>
-                                        <div className="text-xs text-gray-500 font-medium">획득</div>
+                                        <div className="text-xs text-gray-500 font-medium">
+                                            {point.status === 'EARNED' ? '획득' : point.status === 'EXPIRED' ? '만료' : '취소'}
+                                        </div>
                                         <div className="text-xs text-gray-600 flex items-center mt-1">
                                             <Clock size={10} className="mr-1" />
                                             {new Date(point.earnedAt).toLocaleDateString()}
@@ -109,8 +126,10 @@ const MyPoints: React.FC = () => {
                                 </div>
 
                                 <div className="text-right">
-                                    {point.isExpired ? (
+                                    {point.status === 'EXPIRED' ? (
                                         <span className="text-xs font-bold text-red-400 bg-red-50 px-2 py-1 rounded">만료됨</span>
+                                    ) : point.status === 'CANCELED' ? (
+                                        <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded">취소됨</span>
                                     ) : (
                                         <div className="flex flex-col items-end">
                                             <span className="text-sm font-medium text-gray-700">
