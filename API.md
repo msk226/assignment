@@ -153,6 +153,46 @@ X-User-Id: {userId}
 
 ---
 
+### 2.3 당첨 내역 조회
+
+사용자의 룰렛 당첨 내역을 조회합니다.
+
+```
+GET /api/roulette/history
+```
+
+**Headers**
+```
+X-User-Id: {userId}
+```
+
+**Response** `200 OK`
+```json
+[
+  {
+    "id": 1,
+    "points": 350,
+    "date": "2024-01-01",
+    "isCancelled": false,
+    "isCancellable": true,
+    "createdAt": "2024-01-01T12:00:00",
+    "cancelledAt": null
+  }
+]
+```
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `id` | number | 참여 ID |
+| `points` | number | 당첨 포인트 |
+| `date` | string | 참여 날짜 |
+| `isCancelled` | boolean | 취소 여부 |
+| `isCancellable` | boolean | 취소 가능 여부 (포인트 미사용 & 미취소) |
+| `createdAt` | string | 참여 시각 |
+| `cancelledAt` | string \| null | 취소 시각 (취소된 경우) |
+
+---
+
 ## 3. 포인트 API
 
 ### 3.1 내 포인트 목록
@@ -493,13 +533,41 @@ GET /api/admin/roulette
 
 ### 6.5 룰렛 참여 취소
 
-룰렛 참여를 취소하고 포인트를 회수합니다.
+룰렛 참여를 취소하고 포인트를 회수합니다. 포인트를 사용한 경우 취소할 수 없습니다.
 
 ```
-DELETE /api/admin/roulette/{participationId}
+POST /api/admin/roulette/{participationId}/cancel
 ```
 
-**Response** `204 No Content`
+**Response** `200 OK`
+```json
+{
+  "participationId": 1,
+  "cancelledPoints": 350,
+  "budgetRestored": true,
+  "message": "350p 당첨이 취소되었습니다. 예산이 복구되었습니다."
+}
+```
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `participationId` | number | 취소된 참여 ID |
+| `cancelledPoints` | number | 취소된 포인트 |
+| `budgetRestored` | boolean | 예산 복구 여부 (당일만 복구) |
+| `message` | string | 결과 메시지 |
+
+**에러 응답**
+
+| 상황 | 코드 | 메시지 |
+|------|------|--------|
+| 참여 기록 없음 | 404 | "참여 기록을 찾을 수 없습니다." |
+| 이미 취소됨 | 400 | "이미 취소된 참여입니다." |
+| 포인트 사용됨 | 400 | "이미 사용한 포인트가 있어 취소할 수 없습니다." |
+
+**정책**
+- 포인트를 일부라도 사용한 경우 취소 불가
+- 취소해도 당일 재참여 불가 (레코드 유지)
+- 당일 취소 시에만 예산 복구, 과거 취소는 예산 복구 안 함
 
 ---
 
@@ -682,6 +750,7 @@ DELETE /api/admin/orders/{orderId}
 | GET | `/api/auth/me` | 내 정보 | O |
 | POST | `/api/roulette/spin` | 룰렛 참여 | O |
 | GET | `/api/roulette/status` | 룰렛 상태 | O |
+| GET | `/api/roulette/history` | 당첨 내역 | O |
 | GET | `/api/points` | 포인트 목록 | O |
 | GET | `/api/points/balance` | 포인트 잔액 | O |
 | GET | `/api/points/expiring` | 만료 예정 포인트 | O |
@@ -698,7 +767,7 @@ DELETE /api/admin/orders/{orderId}
 | GET | `/api/admin/budget` | 예산 조회 |
 | PUT | `/api/admin/budget` | 예산 설정 |
 | GET | `/api/admin/roulette` | 참여 목록 |
-| DELETE | `/api/admin/roulette/{id}` | 참여 취소 |
+| POST | `/api/admin/roulette/{id}/cancel` | 참여 취소 |
 | GET | `/api/admin/products` | 상품 목록 |
 | POST | `/api/admin/products` | 상품 등록 |
 | PUT | `/api/admin/products/{id}` | 상품 수정 |

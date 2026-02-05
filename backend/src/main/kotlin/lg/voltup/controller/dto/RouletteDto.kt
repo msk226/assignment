@@ -22,3 +22,20 @@ data class RouletteParticipationResponse(
     val points: Int,
     val createdAt: LocalDateTime
 )
+
+data class RouletteHistoryResponse(
+    val id: Long,
+    val points: Int,
+    val date: java.time.LocalDate,
+    val isCancelled: Boolean,
+    val isCancellable: Boolean,
+    val createdAt: LocalDateTime,
+    val cancelledAt: LocalDateTime?
+)
+
+data class CancelParticipationResponse(
+    val participationId: Long,
+    val cancelledPoints: Int,
+    val budgetRestored: Boolean,
+    val message: String
+)

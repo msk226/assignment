@@ -2,6 +2,7 @@ package lg.voltup.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import lg.voltup.controller.dto.RouletteHistoryResponse
 import lg.voltup.controller.dto.RouletteSpinResponse
 import lg.voltup.controller.dto.RouletteStatusResponse
 import lg.voltup.service.RouletteService
@@ -25,5 +26,11 @@ class RouletteController(
     @GetMapping("/status")
     fun getStatus(@RequestHeader("X-User-Id") userId: Long): ResponseEntity<RouletteStatusResponse> {
         return ResponseEntity.ok(rouletteService.getStatus(userId))
+    }
+
+    @Operation(summary = "당첨 내역 조회", description = "사용자의 룰렛 당첨 내역을 조회합니다.")
+    @GetMapping("/history")
+    fun getHistory(@RequestHeader("X-User-Id") userId: Long): ResponseEntity<List<RouletteHistoryResponse>> {
+        return ResponseEntity.ok(rouletteService.getUserHistory(userId))
     }
 }

@@ -23,7 +23,9 @@ class RouletteParticipation private constructor(
 
     val points: Int,
 
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+
+    var cancelledAt: LocalDateTime? = null
 ) {
     companion object {
         fun create(userId: Long, date: LocalDate, points: Int): RouletteParticipation {
@@ -33,5 +35,13 @@ class RouletteParticipation private constructor(
                 points = points
             )
         }
+    }
+
+    val isCancelled: Boolean
+        get() = cancelledAt != null
+
+    fun cancel() {
+        check(!isCancelled) { "이미 취소된 참여입니다." }
+        cancelledAt = LocalDateTime.now()
     }
 }

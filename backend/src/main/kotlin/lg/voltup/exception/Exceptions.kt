@@ -32,3 +32,9 @@ class ProductNotAvailableException(message: String) : RuntimeException(message)
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 class OrderAlreadyCancelledException(message: String) : RuntimeException(message)
+
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+class ParticipationAlreadyCancelledException(message: String) : RuntimeException(message)
+
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+class PointsAlreadyUsedException(message: String) : RuntimeException(message)

@@ -47,11 +47,10 @@ class AdminController(
         return ResponseEntity.ok(rouletteService.getTodayParticipations())
     }
 
-    @Operation(summary = "룰렛 참여 취소", description = "룰렛 참여를 취소하고 포인트를 회수합니다.")
-    @DeleteMapping("/roulette/{participationId}")
-    fun cancelRouletteParticipation(@PathVariable participationId: Long): ResponseEntity<Unit> {
-        rouletteService.cancelParticipation(participationId)
-        return ResponseEntity.noContent().build()
+    @Operation(summary = "룰렛 참여 취소", description = "룰렛 참여를 취소하고 포인트를 회수합니다. 포인트를 사용한 경우 취소할 수 없습니다.")
+    @PostMapping("/roulette/{participationId}/cancel")
+    fun cancelRouletteParticipation(@PathVariable participationId: Long): ResponseEntity<CancelParticipationResponse> {
+        return ResponseEntity.ok(rouletteService.cancelParticipationByAdmin(participationId))
     }
 
     // === 상품 관리 ===
