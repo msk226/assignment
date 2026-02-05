@@ -157,7 +157,7 @@ class RouletteService(
 
         val budgetRestored = restoreBudgetIfTodayAndReturn(participation)
 
-        point?.let { pointRepository.delete(it) }
+        point?.cancel()
 
         return CancelParticipationResponse(
             participationId = participationId,
@@ -207,20 +207,12 @@ class RouletteService(
         val userPoints =
             pointRepository.findValidPointsByUserIdWithLock(participation.userId, LocalDateTime.now())
 
-        // 참여 기록과 동일한 금액의 포인트를 찾아 회수
-        // 사용되지 않은 포인트는 삭제, 부분 사용된 포인트는 남은 금액만큼 usedAmount 증가
+        // 참여 기록과 동일한 금액의 포인트를 찾아 논리 삭제
         val matchingPoint = userPoints.find {
             it.amount == participation.points &&
             it.earnedAt.toLocalDate() == participation.date
         }
 
-        matchingPoint?.let { point ->
-            if (point.usedAmount == 0) {
-                pointRepository.delete(point)
-            } else {
-                // 부분 사용된 경우, 남은 금액을 모두 사용 처리
-                point.use(point.availableAmount)
-            }
-        }
+        matchingPoint?.cancel()
     }
 }

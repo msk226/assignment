@@ -2,6 +2,7 @@ package lg.voltup.service
 
 import lg.voltup.entity.DailyBudget
 import lg.voltup.entity.User
+import lg.voltup.entity.enums.PointStatus
 import lg.voltup.exception.AlreadyParticipatedException
 import lg.voltup.exception.BudgetExhaustedException
 import lg.voltup.exception.ParticipationAlreadyCancelledException
@@ -119,8 +120,8 @@ class RouletteServiceTest @Autowired constructor(
     }
 
     @Test
-    @DisplayName("룰렛 참여 취소 시 포인트가 회수된다")
-    fun cancelParticipation_shouldRemovePoint() {
+    @DisplayName("룰렛 참여 취소 시 포인트가 CANCELED 상태로 변경된다")
+    fun cancelParticipation_shouldCancelPoint() {
         rouletteService.spinRoulette(testUser.id)
 
         val participation = participationRepository.findByUserIdAndDate(testUser.id, LocalDate.now())
@@ -129,7 +130,8 @@ class RouletteServiceTest @Autowired constructor(
         rouletteService.cancelParticipation(participation.id)
 
         val points = pointRepository.findAllByUserId(testUser.id)
-        assertTrue(points.isEmpty() || points.all { it.usedAmount == it.amount })
+        assertEquals(1, points.size)
+        assertEquals(PointStatus.CANCELED, points[0].status)
     }
 
     @Test
@@ -205,22 +207,24 @@ class RouletteServiceTest @Autowired constructor(
     }
 
     @Test
-    @DisplayName("부분 사용된 포인트가 있는 참여를 취소하면 남은 금액만 회수된다")
-    fun cancelParticipation_shouldHandlePartiallyUsedPoints() {
+    @DisplayName("부분 사용된 포인트가 있는 참여를 취소하면 포인트가 CANCELED 상태로 변경된다")
+    fun cancelParticipation_shouldCancelPartiallyUsedPoints() {
         rouletteService.spinRoulette(testUser.id)
 
         // 포인트 일부 사용
         val point = pointRepository.findValidPointsByUserId(testUser.id, LocalDateTime.now()).first()
         point.use(50) // 50p 사용
+        pointRepository.save(point)
 
         val participation = participationRepository.findByUserIdAndDate(testUser.id, LocalDate.now())
         assertNotNull(participation)
 
         rouletteService.cancelParticipation(participation.id)
 
-        // 부분 사용된 포인트는 남은 금액이 사용 처리됨
+        // 부분 사용된 포인트는 CANCELED 상태로 변경됨
         val updatedPoint = pointRepository.findById(point.id).get()
-        assertEquals(point.amount, updatedPoint.usedAmount)
+        assertEquals(PointStatus.CANCELED, updatedPoint.status)
+        assertEquals(50, updatedPoint.usedAmount) // 사용된 금액은 유지됨
     }
 
     // === 당첨 내역 조회 및 관리자 취소 테스트 ===
