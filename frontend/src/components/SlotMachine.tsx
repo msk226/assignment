@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { motion, useAnimation, PanInfo } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 
 // --- Types ---
 interface SlotMachineProps {
@@ -11,7 +11,6 @@ interface SlotMachineProps {
 // --- Constants ---
 const SYMBOLS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const SYMBOL_HEIGHT = 120; // Must match CSS height
-const REEL_SET_COUNT = 30; // Large enough to simulate infinite spin before reset (if needed) or just seamless loop
 
 // A Reel component that handles its own spinning and stopping logic
 // "Senior" Touch: Use seamless loop logic without visual jumps.
@@ -30,74 +29,6 @@ const Reel = ({
 
     // We render a long strip of numbers: [0..9, 0..9, ... ] 
     // We spin downwards (y decreases).
-
-    useEffect(() => {
-        const spinDuration = 0.5; // Seconds per full 0-9 loop
-
-        const animateSpin = async () => {
-            // Continuous spinning loop
-            // We animate from 0 to -10 * SYMBOL_HEIGHT
-            // and loop it infinitely using 'loop' type or just repeating
-            await controls.start({
-                y: [0, -SYMBOL_HEIGHT * 10],
-                transition: {
-                    duration: 0.25, // Fast spin
-                    ease: "linear",
-                    repeat: Infinity,
-                }
-            });
-        };
-
-        const animateStop = async () => {
-            // To stop, we need to transition from the infinite spin to a specific landing.
-            // 1. Wait for delay
-            await new Promise(resolve => setTimeout(resolve, stopDelay * 1000));
-
-            // 2. Stop infinite spin nicely?
-            // Framer motion's infinite loop is hard to interrupt at exact current Y without reading it.
-            // A trick: Stop controls, read value? 
-            // Better trick: Since it's fast, we can just start a *new* animation from 0 (or "current visual") to the target.
-            // To be seamless: We pretend we are at "top" of a set and scroll down to the target digit in a *new* set lower down.
-
-            // Let's scroll past a few sets to decelerate.
-            const EXTRA_LOOPS = 2; // How many full loops to do while decelerating
-            const totalDistance = (EXTRA_LOOPS * 10 * SYMBOL_HEIGHT) + (targetDigit * SYMBOL_HEIGHT);
-
-            // We force reset to 0 (visual jump? No, if we time it or just force it since it's blurred/fast)
-            // Actually, visually seamless is hard if we don't know exact 'y'. 
-            // However, `controls.stop()` leaves it at current.
-            // Let's assume we just start a "landing" animation from 0 relative to a new container or reset.
-            // Simplification: Just overwrite animation.
-
-            await controls.start({
-                y: -totalDistance,
-                transition: {
-                    duration: 1.5, // Deceleration time
-                    ease: [0.16, 1, 0.3, 1], // Ease-out
-                }
-            });
-
-            onReelStop();
-        };
-
-        if (isSpinning) {
-            animateSpin();
-        } else {
-            // When 'isSpinning' becomes false, we trigger the stop sequence.
-            // But we only want to do this if we were previously spinning?
-            // The parent handles state. If isSpinning is false, we should be at target.
-            // But usually this component mounts with isSpinning=false.
-
-            // If we just mounted, we just show targetDigit (no animation).
-            // If we were spinning, we animate stop. This requires tracking 'prevIsSpinning'.
-            // For simplicity here, we assume the parent toggles clearly. 
-            // BUT: The prop 'isSpinning' toggles ON then OFF.
-            // When it toggles OFF, we run animateStop().
-            // However, React effect dependencies run on change. 
-            // We can't distinguish "Mount false" vs "Toggle false".
-            // We can use a ref or check if we are already at target?
-        }
-    }, [isSpinning, controls]); // We separate the logic inside effect
 
     // Improved Effect Logic
     const isFirstRun = useRef(true);
