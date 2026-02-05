@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api/client';
-import RouletteWheel from '../components/RouletteWheel';
+import SlotMachine from '../components/SlotMachine';
 import { Trophy, AlertCircle, CalendarDays } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
@@ -23,7 +23,6 @@ const Home: React.FC = () => {
     const { } = useAuth();
     const queryClient = useQueryClient();
     const [isSpinning, setIsSpinning] = useState(false);
-    const [targetAngle, setTargetAngle] = useState(0);
     const [spinResult, setSpinResult] = useState<SpinResult | null>(null);
 
     const { data: status, isLoading: isStatusLoading } = useQuery<RouletteStatus>({
@@ -40,23 +39,8 @@ const Home: React.FC = () => {
             return res.data as SpinResult;
         },
         onSuccess: (data) => {
-            // Calculate minimal spins (5) + random offset to land on/near the result?
-            // Actually, since the wheel is purely visual here (segments don't strictly map to values 1:1 in backend logic which is random 100-1000),
-            // we will just spin effectively. 
-            // If we want to be realistic, we need to map points to segments.
-            // My wheel has 100, 500, 1000, 200, 300, 400.
-            // If result is 350, it's not on the wheel.
-            // The spec says 100~1000 random. 
-            // So I should probably just show a generic "Win" or map to generic segments.
-            // Let's assume the wheel is "representative".
-            // I will just rotate it by a large random amount + (points % 360)? No.
-            // Just spin for effect, then show the result modal.
-
-            const randomSpins = 5 + Math.random() * 5;
-            const newAngle = targetAngle + 360 * randomSpins + Math.random() * 360;
-            setTargetAngle(newAngle);
-            setIsSpinning(true);
             setSpinResult(data);
+            setIsSpinning(true);
         },
         onError: (err: any) => {
             alert(err.response?.data?.message || "참여에 실패했습니다.");
@@ -120,18 +104,18 @@ const Home: React.FC = () => {
                         )}
                     </div>
 
-                    {/* Roulette Section */}
+                    {/* Slot Machine Section */}
                     <div className="flex-1 flex flex-col justify-center items-center w-full">
                         <div className="mb-8 relative">
-                            <RouletteWheel
+                            <SlotMachine
                                 isSpinning={isSpinning}
                                 onSpinEnd={handleSpinEnd}
-                                targetAngle={targetAngle}
+                                winPoints={spinResult?.points}
                             />
 
                             {/* Result Overlay (Only when finished spinning and has result today) */}
                             {!isSpinning && status.hasParticipatedToday && (
-                                <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-[2px] rounded-full">
+                                <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-[2px] rounded-3xl">
                                     <div className="bg-white p-4 rounded-xl shadow-2xl text-center transform scale-110 animate-bounce-in">
                                         <Trophy className="mx-auto text-yellow-500 mb-1" size={32} />
                                         <div className="text-xs text-gray-600">오늘의 결과</div>
@@ -144,7 +128,7 @@ const Home: React.FC = () => {
                         </div>
 
                         {/* Status Message / Action Button */}
-                        <div className="text-center w-full">
+                        <div className="text-center w-full max-w-xs">
                             {status.hasParticipatedToday ? (
                                 <button
                                     disabled
@@ -165,11 +149,11 @@ const Home: React.FC = () => {
                                     disabled={isSpinning || spinMutation.isPending}
                                     className={cn(
                                         "w-full py-4 rounded-full font-bold text-lg text-gray-900 shadow-lg transform transition-all active:scale-95",
-                                        "bg-primary hover:bg-[#c2e300]",
+                                        "bg-primary hover:bg-[#c2e300] border-b-4 border-b-[#aebd00] active:border-b-0 active:translate-y-1",
                                         (isSpinning || spinMutation.isPending) && "opacity-80 cursor-wait"
                                     )}
                                 >
-                                    {isSpinning ? "행운을 비는 중..." : "룰렛 돌리기!"}
+                                    {isSpinning ? "행운을 비는 중..." : "SPIN 777"}
                                 </button>
                             )}
                         </div>
