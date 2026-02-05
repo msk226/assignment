@@ -87,11 +87,19 @@ class GlobalExceptionHandler {
         )
     }
 
+    @ExceptionHandler(PointsAlreadyUsedException::class)
+    fun handlePointsAlreadyUsed(e: PointsAlreadyUsedException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            ErrorResponse(status = 400, error = "Points Already Used", message = e.message)
+        )
+    }
+
     @ExceptionHandler(DataIntegrityViolationException::class)
     fun handleDataIntegrityViolation(e: DataIntegrityViolationException): ResponseEntity<ErrorResponse> {
         val message = when {
             e.message?.contains("user_id") == true && e.message?.contains("date") == true ->
                 "오늘 이미 참여했습니다."
+
             else -> "데이터 처리 중 오류가 발생했습니다."
         }
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
