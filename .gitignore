@@ -12,12 +12,31 @@ point-roulette-guide.md
 
 # Dependencies
 node_modules/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
 
 # Build Outputs
 dist/
 build/
 out/
 .output/
+coverage/
+flutter_*.log
+
+# Flutter/Android/iOS
+android/.gradle/
+android/app/build/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/ephemeral/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Runner.xcworkspace/
+ios/DerivedData/
 
 # Environment Variables
 .env
