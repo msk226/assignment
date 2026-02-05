@@ -15,8 +15,13 @@ export const apiClient = axios.create({
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    // 공통 에러 처리 로직 (예: 401 시 로그인 페이지로 리다이렉트 등)
-    console.error('API Error:', error);
+    // 서버에서 보내주는 에러 메시지 추출
+    const serverErrorMessage = error.response?.data?.message || '알 수 없는 에러가 발생했습니다.';
+
+    // 에러 객체에 message 속성을 덮어쓰거나, 새로운 속성으로 추가하여 UI에서 사용할 수 있게 함
+    error.message = serverErrorMessage;
+
+    console.error('API Error:', serverErrorMessage, error);
     return Promise.reject(error);
   }
 );

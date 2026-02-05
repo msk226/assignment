@@ -524,10 +524,22 @@ GET /api/admin/roulette
     "userId": 1,
     "nickname": "닉네임",
     "points": 350,
-    "createdAt": "2024-01-01T12:00:00"
+    "status": "PARTICIPATED",
+    "createdAt": "2024-01-01T12:00:00",
+    "cancelledAt": null
   }
 ]
 ```
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `id` | number | 참여 ID |
+| `userId` | number | 사용자 ID |
+| `nickname` | string | 사용자 닉네임 |
+| `points` | number | 당첨 포인트 |
+| `status` | string | 참여 상태 (PARTICIPATED \| CANCELLED) |
+| `createdAt` | string | 참여 시각 |
+| `cancelledAt` | string \| null | 취소 시각 (취소된 경우) |
 
 ---
 

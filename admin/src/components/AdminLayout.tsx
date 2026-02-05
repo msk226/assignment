@@ -7,6 +7,7 @@ import {
     ShoppingOutlined,
     OrderedListOutlined,
     UserOutlined,
+    PlayCircleOutlined,
 } from '@ant-design/icons';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -36,6 +37,7 @@ const voltUpTheme = {
 const items = [
     { key: '/', icon: <DashboardOutlined />, label: '대시보드' },
     { key: '/budget', icon: <DollarOutlined />, label: '예산 관리' },
+    { key: '/roulette', icon: <PlayCircleOutlined />, label: '룰렛 관리' },
     { key: '/products', icon: <ShoppingOutlined />, label: '상품 관리' },
     { key: '/orders', icon: <OrderedListOutlined />, label: '주문 내역' },
 ];
