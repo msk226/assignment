@@ -1,6 +1,7 @@
 package lg.voltup.entity
 
 import jakarta.persistence.*
+import lg.voltup.entity.enums.PointStatus
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -18,6 +19,10 @@ class Point private constructor(
 
     var usedAmount: Int = 0,
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var status: PointStatus = PointStatus.EARNED,
+
     val earnedAt: LocalDateTime = LocalDateTime.now(),
 
     val expiresAt: LocalDateTime
@@ -30,6 +35,7 @@ class Point private constructor(
             return Point(
                 userId = userId,
                 amount = amount,
+                status = PointStatus.EARNED,
                 expiresAt = expiresAt
             )
         }
@@ -37,6 +43,17 @@ class Point private constructor(
         fun createWithDefaultExpiry(userId: Long, amount: Int): Point {
             return create(userId, amount, LocalDateTime.now().plusDays(DEFAULT_EXPIRY_DAYS))
         }
+    }
+
+    val effectiveStatus: PointStatus
+        get() = when {
+            status == PointStatus.CANCELED -> PointStatus.CANCELED
+            isExpired -> PointStatus.EXPIRED
+            else -> PointStatus.EARNED
+        }
+
+    fun cancel() {
+        status = PointStatus.CANCELED
     }
 
     val availableAmount: Int

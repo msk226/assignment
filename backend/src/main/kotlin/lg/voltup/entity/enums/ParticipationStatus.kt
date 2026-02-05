@@ -1,4 +1,4 @@
-package lg.voltup.entity
+package lg.voltup.entity.enums
 
 enum class ParticipationStatus {
     PARTICIPATED,

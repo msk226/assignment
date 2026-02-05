@@ -7,6 +7,7 @@ data class PointResponse(
     val amount: Int,
     val usedAmount: Int,
     val availableAmount: Int,
+    val status: String,
     val earnedAt: LocalDateTime,
     val expiresAt: LocalDateTime,
     val isExpired: Boolean,

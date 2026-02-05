@@ -1,6 +1,7 @@
 package lg.voltup.entity
 
 import jakarta.persistence.*
+import lg.voltup.entity.enums.ParticipationStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 

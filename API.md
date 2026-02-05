@@ -197,16 +197,23 @@ X-User-Id: {userId}
 
 ### 3.1 내 포인트 목록
 
-보유 포인트 목록을 조회합니다. (유효기간 포함)
+보유 포인트 목록을 조회합니다. 상태별 필터링이 가능합니다.
 
 ```
 GET /api/points
+GET /api/points?status=EARNED
 ```
 
 **Headers**
 ```
 X-User-Id: {userId}
 ```
+
+**Query Parameters**
+
+| 파라미터 | 필수 | 타입 | 설명 |
+|----------|------|------|------|
+| `status` | X | string | 포인트 상태 필터 (EARNED \| EXPIRED \| CANCELED) |
 
 **Response** `200 OK`
 ```json
@@ -216,6 +223,7 @@ X-User-Id: {userId}
     "amount": 350,
     "usedAmount": 0,
     "availableAmount": 350,
+    "status": "EARNED",
     "earnedAt": "2024-01-01T12:00:00",
     "expiresAt": "2024-01-31T12:00:00",
     "isExpired": false,
@@ -229,8 +237,17 @@ X-User-Id: {userId}
 | `amount` | number | 획득한 총 포인트 |
 | `usedAmount` | number | 사용한 포인트 |
 | `availableAmount` | number | 사용 가능한 포인트 |
+| `status` | string | 포인트 상태 (EARNED \| EXPIRED \| CANCELED) |
 | `isExpired` | boolean | 만료 여부 |
 | `daysUntilExpiry` | number | 만료까지 남은 일수 |
+
+**포인트 상태**
+
+| 상태 | 설명 |
+|------|------|
+| `EARNED` | 적립됨 (사용 가능) |
+| `EXPIRED` | 만료됨 |
+| `CANCELED` | 취소됨 |
 
 ---
 
@@ -284,6 +301,7 @@ X-User-Id: {userId}
       "amount": 350,
       "usedAmount": 0,
       "availableAmount": 350,
+      "status": "EARNED",
       "earnedAt": "2024-01-01T12:00:00",
       "expiresAt": "2024-01-08T12:00:00",
       "isExpired": false,

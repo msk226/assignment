@@ -1,5 +1,6 @@
 package lg.voltup.entity
 
+import lg.voltup.entity.enums.PointStatus
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.assertThrows
@@ -23,7 +24,8 @@ class PointTest {
             { assertEquals(userId, point.userId) },
             { assertEquals(amount, point.amount) },
             { assertEquals(0, point.usedAmount) },
-            { assertEquals(expiresAt, point.expiresAt) }
+            { assertEquals(expiresAt, point.expiresAt) },
+            { assertEquals(PointStatus.EARNED, point.status) }
         )
     }
 
@@ -68,5 +70,40 @@ class PointTest {
         val point = Point.createWithDefaultExpiry(1L, 100)
 
         assertEquals(0, point.usedAmount)
+    }
+
+    @Test
+    fun `포인트 생성 시 상태는 EARNED로 초기화된다`() {
+        val point = Point.createWithDefaultExpiry(1L, 100)
+
+        assertEquals(PointStatus.EARNED, point.status)
+        assertEquals(PointStatus.EARNED, point.effectiveStatus)
+    }
+
+    @Test
+    fun `포인트 취소 시 상태가 CANCELED로 변경된다`() {
+        val point = Point.createWithDefaultExpiry(1L, 100)
+
+        point.cancel()
+
+        assertEquals(PointStatus.CANCELED, point.status)
+        assertEquals(PointStatus.CANCELED, point.effectiveStatus)
+    }
+
+    @Test
+    fun `만료된 포인트의 effectiveStatus는 EXPIRED이다`() {
+        val point = Point.create(1L, 100, LocalDateTime.now().minusDays(1))
+
+        assertEquals(PointStatus.EARNED, point.status)
+        assertEquals(PointStatus.EXPIRED, point.effectiveStatus)
+    }
+
+    @Test
+    fun `취소된 포인트의 effectiveStatus는 만료 여부와 관계없이 CANCELED이다`() {
+        val point = Point.create(1L, 100, LocalDateTime.now().minusDays(1))
+        point.cancel()
+
+        assertEquals(PointStatus.CANCELED, point.status)
+        assertEquals(PointStatus.CANCELED, point.effectiveStatus)
     }
 }
