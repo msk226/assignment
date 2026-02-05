@@ -1,9 +1,11 @@
 package lg.voltup.controller.dto
 
+import jakarta.validation.constraints.Positive
 import lg.voltup.entity.enums.OrderStatus
 import java.time.LocalDateTime
 
 data class OrderCreateRequest(
+    @field:Positive(message = "상품 ID는 양수여야 합니다.")
     val productId: Long
 )
 

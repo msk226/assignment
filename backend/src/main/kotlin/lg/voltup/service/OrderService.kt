@@ -22,6 +22,7 @@ class OrderService(
     private val pointRepository: PointRepository
 ) {
 
+    @Transactional(readOnly = true)
     fun getAllOrders(): List<OrderResponse> {
         return orderRepository.findAllByOrderByCreatedAtDesc().map { it.toResponse() }
     }

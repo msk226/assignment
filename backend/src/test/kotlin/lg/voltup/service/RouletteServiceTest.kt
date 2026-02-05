@@ -4,7 +4,9 @@ import lg.voltup.entity.DailyBudget
 import lg.voltup.entity.User
 import lg.voltup.exception.AlreadyParticipatedException
 import lg.voltup.exception.BudgetExhaustedException
+import lg.voltup.exception.ParticipationAlreadyCancelledException
 import lg.voltup.exception.ParticipationNotFoundException
+import lg.voltup.exception.PointsAlreadyUsedException
 import java.time.LocalDateTime
 import lg.voltup.repository.DailyBudgetRepository
 import lg.voltup.repository.PointRepository
@@ -201,5 +203,131 @@ class RouletteServiceTest @Autowired constructor(
         // 부분 사용된 포인트는 남은 금액이 사용 처리됨
         val updatedPoint = pointRepository.findById(point.id).get()
         assertEquals(point.amount, updatedPoint.usedAmount)
+    }
+
+    // === 당첨 내역 조회 및 관리자 취소 테스트 ===
+
+    @Test
+    @DisplayName("사용자 당첨 내역을 조회할 수 있다")
+    fun getUserHistory_shouldReturnParticipationHistory() {
+        rouletteService.spinRoulette(testUser.id)
+
+        val history = rouletteService.getUserHistory(testUser.id)
+
+        assertEquals(1, history.size)
+        assertEquals(LocalDate.now(), history[0].date)
+        assertEquals(false, history[0].isCancelled)
+        assertEquals(true, history[0].isCancellable)
+    }
+
+    @Test
+    @DisplayName("관리자가 당첨을 취소할 수 있다")
+    fun cancelParticipationByAdmin_shouldCancelSuccessfully() {
+        rouletteService.spinRoulette(testUser.id)
+        val participation = participationRepository.findByUserIdAndDate(testUser.id, LocalDate.now())!!
+
+        val result = rouletteService.cancelParticipationByAdmin(participation.id)
+
+        assertEquals(participation.id, result.participationId)
+        assertEquals(participation.points, result.cancelledPoints)
+        assertEquals(true, result.budgetRestored)
+
+        val updatedParticipation = participationRepository.findById(participation.id).get()
+        assertEquals(true, updatedParticipation.isCancelled)
+    }
+
+    @Test
+    @DisplayName("포인트를 사용한 경우 취소할 수 없다")
+    fun cancelParticipationByAdmin_shouldFailWhenPointsUsed() {
+        rouletteService.spinRoulette(testUser.id)
+
+        val point = pointRepository.findValidPointsByUserId(testUser.id, LocalDateTime.now()).first()
+        point.use(50)
+        pointRepository.save(point)
+
+        val participation = participationRepository.findByUserIdAndDate(testUser.id, LocalDate.now())!!
+
+        val exception = assertThrows<PointsAlreadyUsedException> {
+            rouletteService.cancelParticipationByAdmin(participation.id)
+        }
+
+        assertEquals("이미 사용한 포인트가 있어 취소할 수 없습니다.", exception.message)
+    }
+
+    @Test
+    @DisplayName("이미 취소된 참여를 다시 취소할 수 없다")
+    fun cancelParticipationByAdmin_shouldFailWhenAlreadyCancelled() {
+        rouletteService.spinRoulette(testUser.id)
+        val participation = participationRepository.findByUserIdAndDate(testUser.id, LocalDate.now())!!
+
+        rouletteService.cancelParticipationByAdmin(participation.id)
+
+        val exception = assertThrows<ParticipationAlreadyCancelledException> {
+            rouletteService.cancelParticipationByAdmin(participation.id)
+        }
+
+        assertEquals("이미 취소된 참여입니다.", exception.message)
+    }
+
+    @Test
+    @DisplayName("관리자 취소 후에도 당일 재참여할 수 없다")
+    fun cancelParticipationByAdmin_shouldNotAllowReParticipation() {
+        rouletteService.spinRoulette(testUser.id)
+        val participation = participationRepository.findByUserIdAndDate(testUser.id, LocalDate.now())!!
+
+        rouletteService.cancelParticipationByAdmin(participation.id)
+
+        val exception = assertThrows<AlreadyParticipatedException> {
+            rouletteService.spinRoulette(testUser.id)
+        }
+
+        assertEquals("오늘 이미 참여했습니다.", exception.message)
+    }
+
+    @Test
+    @DisplayName("당일 취소 시 예산이 복구된다")
+    fun cancelParticipationByAdmin_shouldRestoreBudgetForToday() {
+        val spinResult = rouletteService.spinRoulette(testUser.id)
+        val budgetBefore = dailyBudgetRepository.findByDate(LocalDate.now())!!.remainingBudget
+
+        val participation = participationRepository.findByUserIdAndDate(testUser.id, LocalDate.now())!!
+        val result = rouletteService.cancelParticipationByAdmin(participation.id)
+
+        assertEquals(true, result.budgetRestored)
+
+        val budgetAfter = dailyBudgetRepository.findByDate(LocalDate.now())!!.remainingBudget
+        assertEquals(budgetBefore + spinResult.points, budgetAfter)
+    }
+
+    @Test
+    @DisplayName("취소된 참여는 이력에서 isCancellable이 false로 표시된다")
+    fun getUserHistory_shouldShowCancelledAsNotCancellable() {
+        rouletteService.spinRoulette(testUser.id)
+        val participation = participationRepository.findByUserIdAndDate(testUser.id, LocalDate.now())!!
+
+        rouletteService.cancelParticipationByAdmin(participation.id)
+
+        val history = rouletteService.getUserHistory(testUser.id)
+
+        assertEquals(1, history.size)
+        assertEquals(true, history[0].isCancelled)
+        assertEquals(false, history[0].isCancellable)
+        assertNotNull(history[0].cancelledAt)
+    }
+
+    @Test
+    @DisplayName("포인트 사용된 참여는 이력에서 isCancellable이 false로 표시된다")
+    fun getUserHistory_shouldShowUsedPointsAsNotCancellable() {
+        rouletteService.spinRoulette(testUser.id)
+
+        val point = pointRepository.findValidPointsByUserId(testUser.id, LocalDateTime.now()).first()
+        point.use(50)
+        pointRepository.save(point)
+
+        val history = rouletteService.getUserHistory(testUser.id)
+
+        assertEquals(1, history.size)
+        assertEquals(false, history[0].isCancelled)
+        assertEquals(false, history[0].isCancellable)
     }
 }

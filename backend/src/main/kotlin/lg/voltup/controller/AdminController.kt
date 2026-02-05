@@ -2,6 +2,7 @@ package lg.voltup.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import lg.voltup.controller.dto.*
 import lg.voltup.service.AdminService
 import lg.voltup.service.OrderService
@@ -36,7 +37,7 @@ class AdminController(
 
     @Operation(summary = "예산 설정", description = "오늘의 일일 예산을 설정합니다.")
     @PutMapping("/budget")
-    fun updateBudget(@RequestBody request: BudgetUpdateRequest): ResponseEntity<BudgetResponse> {
+    fun updateBudget(@Valid @RequestBody request: BudgetUpdateRequest): ResponseEntity<BudgetResponse> {
         return ResponseEntity.ok(adminService.updateTodayBudget(request))
     }
 
@@ -47,11 +48,10 @@ class AdminController(
         return ResponseEntity.ok(rouletteService.getTodayParticipations())
     }
 
-    @Operation(summary = "룰렛 참여 취소", description = "룰렛 참여를 취소하고 포인트를 회수합니다.")
-    @DeleteMapping("/roulette/{participationId}")
-    fun cancelRouletteParticipation(@PathVariable participationId: Long): ResponseEntity<Unit> {
-        rouletteService.cancelParticipation(participationId)
-        return ResponseEntity.noContent().build()
+    @Operation(summary = "룰렛 참여 취소", description = "룰렛 참여를 취소하고 포인트를 회수합니다. 포인트를 사용한 경우 취소할 수 없습니다.")
+    @PostMapping("/roulette/{participationId}/cancel")
+    fun cancelRouletteParticipation(@PathVariable participationId: Long): ResponseEntity<CancelParticipationResponse> {
+        return ResponseEntity.ok(rouletteService.cancelParticipationByAdmin(participationId))
     }
 
     // === 상품 관리 ===
@@ -63,7 +63,7 @@ class AdminController(
 
     @Operation(summary = "상품 등록", description = "새 상품을 등록합니다.")
     @PostMapping("/products")
-    fun createProduct(@RequestBody request: ProductCreateRequest): ResponseEntity<ProductResponse> {
+    fun createProduct(@Valid @RequestBody request: ProductCreateRequest): ResponseEntity<ProductResponse> {
         return ResponseEntity.ok(productService.createProduct(request))
     }
 
@@ -71,7 +71,7 @@ class AdminController(
     @PutMapping("/products/{productId}")
     fun updateProduct(
         @PathVariable productId: Long,
-        @RequestBody request: ProductUpdateRequest
+        @Valid @RequestBody request: ProductUpdateRequest
     ): ResponseEntity<ProductResponse> {
         return ResponseEntity.ok(productService.updateProduct(productId, request))
     }

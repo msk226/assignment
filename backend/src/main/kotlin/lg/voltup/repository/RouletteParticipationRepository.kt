@@ -22,4 +22,16 @@ interface RouletteParticipationRepository : JpaRepository<RouletteParticipation,
     @QueryHints(QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000"))
     @Query("SELECT r FROM RouletteParticipation r WHERE r.id = :participationId")
     fun findByIdWithLock(participationId: Long): RouletteParticipation?
+
+    @Query("SELECT r FROM RouletteParticipation r WHERE r.userId = :userId ORDER BY r.createdAt DESC")
+    fun findAllByUserIdOrderByCreatedAtDesc(userId: Long): List<RouletteParticipation>
+
+    @Query("SELECT r FROM RouletteParticipation r WHERE r.date = :date AND r.cancelledAt IS NULL")
+    fun findAllActiveByDate(date: LocalDate): List<RouletteParticipation>
+
+    @Query("SELECT COUNT(r) FROM RouletteParticipation r WHERE r.date = :date AND r.cancelledAt IS NULL")
+    fun countActiveByDate(date: LocalDate): Long
+
+    @Query("SELECT COALESCE(SUM(r.points), 0) FROM RouletteParticipation r WHERE r.date = :date AND r.cancelledAt IS NULL")
+    fun sumPointsByDate(date: LocalDate): Int
 }
