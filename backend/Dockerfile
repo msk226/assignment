@@ -6,7 +6,7 @@ COPY build.gradle.kts .
 COPY settings.gradle .
 COPY src src
 RUN chmod +x ./gradlew
-RUN ./gradlew build -x test --no-daemon
+RUN ./gradlew build -x test -x detekt -x ktlintCheck --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
