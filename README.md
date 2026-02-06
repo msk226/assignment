@@ -16,7 +16,7 @@
 
 ### 3. CI/CD 파이프라인
 백엔드 배포 자동화가 GitHub Actions로 구축되어 있습니다.
-- 설정 파일: `.github/workflows/backend-ci.yml` (또는 해당 경로)
+- 설정 파일: `.github/workflows/backend-ci.yml` 
 
 ### 4. AI 활용 리포트 (AI Collaboration)
 개발 과정에서의 AI 협업 프롬프트 기록입니다.
