@@ -8,6 +8,9 @@ import Home from './pages/Home';
 import MyPoints from './pages/MyPoints';
 import ProductList from './pages/ProductList';
 import OrderHistory from './pages/OrderHistory';
+import NetworkError from './pages/NetworkError';
+import { AxiosInterceptor } from './components/AxiosInterceptor';
+import LoadingScreen from './components/LoadingScreen';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,7 +25,9 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    if (isLoading) {
+      return <LoadingScreen />;
+    }
   }
 
   if (!user) {
@@ -35,7 +40,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 const AppRoutes = () => {
   const { user, isLoading } = useAuth();
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <Routes>
@@ -82,8 +87,12 @@ const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <AxiosInterceptor />
         <AuthProvider>
-          <AppRoutes />
+          <Routes>
+            <Route path="/network-error" element={<NetworkError />} />
+            <Route path="/*" element={<AppRoutes />} />
+          </Routes>
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
