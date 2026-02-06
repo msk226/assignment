@@ -8,7 +8,6 @@ import java.time.LocalDate
 import kotlin.test.*
 
 class RouletteParticipationTest {
-
     @Test
     fun `create 메서드로 룰렛 참여 기록을 생성할 수 있다`() {
         val userId = 1L
@@ -22,7 +21,7 @@ class RouletteParticipationTest {
             { assertEquals(userId, participation.userId) },
             { assertEquals(date, participation.date) },
             { assertEquals(points, participation.points) },
-            { assertNotNull(participation.createdAt) }
+            { assertNotNull(participation.createdAt) },
         )
     }
 
@@ -64,9 +63,10 @@ class RouletteParticipationTest {
         val participation = RouletteParticipation.create(1L, LocalDate.now(), 100)
         participation.cancel()
 
-        val exception = assertThrows<IllegalStateException> {
-            participation.cancel()
-        }
+        val exception =
+            assertThrows<IllegalStateException> {
+                participation.cancel()
+            }
 
         assertEquals("이미 취소된 참여입니다.", exception.message)
     }

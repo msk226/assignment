@@ -11,24 +11,16 @@ class Product private constructor(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-
     @Column(nullable = false)
     var name: String,
-
     var description: String? = null,
-
     @Column(nullable = false)
     var price: Int,
-
     var stock: Int = 0,
-
     var imageUrl: String? = null,
-
     var isActive: Boolean = true,
-
     val createdAt: LocalDateTime = LocalDateTime.now(),
-
-    var updatedAt: LocalDateTime = LocalDateTime.now()
+    var updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
     companion object {
         fun create(
@@ -36,7 +28,7 @@ class Product private constructor(
             description: String?,
             price: Int,
             stock: Int,
-            imageUrl: String?
+            imageUrl: String?,
         ): Product {
             require(name.isNotBlank()) { "상품명은 필수입니다." }
             require(price > 0) { "가격은 0보다 커야 합니다." }
@@ -46,7 +38,7 @@ class Product private constructor(
                 description = description,
                 price = price,
                 stock = stock,
-                imageUrl = imageUrl
+                imageUrl = imageUrl,
             )
         }
     }
@@ -85,7 +77,7 @@ class Product private constructor(
         price: Int? = null,
         stock: Int? = null,
         imageUrl: String? = null,
-        isActive: Boolean? = null
+        isActive: Boolean? = null,
     ) {
         name?.let {
             require(it.isNotBlank()) { "상품명은 필수입니다." }
@@ -104,5 +96,4 @@ class Product private constructor(
         isActive?.let { this.isActive = it }
         updatedAt = LocalDateTime.now()
     }
-
 }

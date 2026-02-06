@@ -11,7 +11,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class DailyBudgetTest {
-
     @Test
     fun `create 메서드로 일일 예산을 생성할 수 있다`() {
         val date = LocalDate.now()
@@ -23,7 +22,7 @@ class DailyBudgetTest {
             { assertNotNull(dailyBudget) },
             { assertEquals(date, dailyBudget.date) },
             { assertEquals(totalBudget, dailyBudget.totalBudget) },
-            { assertEquals(0, dailyBudget.usedBudget) }
+            { assertEquals(0, dailyBudget.usedBudget) },
         )
     }
 
@@ -101,9 +100,10 @@ class DailyBudgetTest {
         val dailyBudget = DailyBudget.create(LocalDate.now(), 100000)
         dailyBudget.usedBudget = 100000
 
-        val exception = assertThrows<BudgetExhaustedException> {
-            dailyBudget.calculateDistributablePoints(1000, 100)
-        }
+        val exception =
+            assertThrows<BudgetExhaustedException> {
+                dailyBudget.calculateDistributablePoints(1000, 100)
+            }
 
         assertEquals("오늘 예산이 소진되었습니다.", exception.message)
     }
@@ -133,9 +133,10 @@ class DailyBudgetTest {
     fun `distribute에 0을 전달하면 IllegalArgumentException이 발생한다`() {
         val dailyBudget = DailyBudget.create(LocalDate.now(), 100000)
 
-        val exception = assertThrows<IllegalArgumentException> {
-            dailyBudget.distribute(0)
-        }
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                dailyBudget.distribute(0)
+            }
 
         assertEquals("지급 포인트는 0보다 커야 합니다.", exception.message)
     }
@@ -144,9 +145,10 @@ class DailyBudgetTest {
     fun `distribute에 음수를 전달하면 IllegalArgumentException이 발생한다`() {
         val dailyBudget = DailyBudget.create(LocalDate.now(), 100000)
 
-        val exception = assertThrows<IllegalArgumentException> {
-            dailyBudget.distribute(-100)
-        }
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                dailyBudget.distribute(-100)
+            }
 
         assertEquals("지급 포인트는 0보다 커야 합니다.", exception.message)
     }
@@ -156,9 +158,10 @@ class DailyBudgetTest {
         val dailyBudget = DailyBudget.create(LocalDate.now(), 100000)
         dailyBudget.usedBudget = 99500
 
-        val exception = assertThrows<BudgetExhaustedException> {
-            dailyBudget.distribute(1000)
-        }
+        val exception =
+            assertThrows<BudgetExhaustedException> {
+                dailyBudget.distribute(1000)
+            }
 
         assertEquals("잔여 예산이 부족합니다.", exception.message)
     }
@@ -189,9 +192,10 @@ class DailyBudgetTest {
     fun `restore에 0을 전달하면 IllegalArgumentException이 발생한다`() {
         val dailyBudget = DailyBudget.create(LocalDate.now(), 100000)
 
-        val exception = assertThrows<IllegalArgumentException> {
-            dailyBudget.restore(0)
-        }
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                dailyBudget.restore(0)
+            }
 
         assertEquals("복구 포인트는 0보다 커야 합니다.", exception.message)
     }
@@ -200,9 +204,10 @@ class DailyBudgetTest {
     fun `restore에 음수를 전달하면 IllegalArgumentException이 발생한다`() {
         val dailyBudget = DailyBudget.create(LocalDate.now(), 100000)
 
-        val exception = assertThrows<IllegalArgumentException> {
-            dailyBudget.restore(-100)
-        }
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                dailyBudget.restore(-100)
+            }
 
         assertEquals("복구 포인트는 0보다 커야 합니다.", exception.message)
     }
@@ -223,9 +228,10 @@ class DailyBudgetTest {
         val dailyBudget = DailyBudget.create(LocalDate.now(), 100000)
         dailyBudget.usedBudget = 99950 // 잔여 50p
 
-        val exception = assertThrows<BudgetExhaustedException> {
-            dailyBudget.calculateDistributablePoints(1000, 100)
-        }
+        val exception =
+            assertThrows<BudgetExhaustedException> {
+                dailyBudget.calculateDistributablePoints(1000, 100)
+            }
 
         assertEquals("오늘 예산이 소진되었습니다.", exception.message)
     }
@@ -266,9 +272,10 @@ class DailyBudgetTest {
         val dailyBudget = DailyBudget.create(LocalDate.now(), 100000)
         dailyBudget.usedBudget = 50000
 
-        val exception = assertThrows<IllegalArgumentException> {
-            dailyBudget.updateTotalBudget(30000)
-        }
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                dailyBudget.updateTotalBudget(30000)
+            }
 
         assertTrue(exception.message!!.contains("이미 사용된 예산"))
     }

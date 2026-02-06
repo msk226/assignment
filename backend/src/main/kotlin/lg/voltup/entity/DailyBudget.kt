@@ -10,20 +10,20 @@ class DailyBudget private constructor(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-
     @Column(unique = true, nullable = false)
     val date: LocalDate,
-
     @Column(nullable = false)
     var totalBudget: Int = 100000,
-
-    var usedBudget: Int = 0
+    var usedBudget: Int = 0,
 ) {
     companion object {
-        fun create(date: LocalDate, totalBudget: Int = 100000): DailyBudget {
+        fun create(
+            date: LocalDate,
+            totalBudget: Int = 100000,
+        ): DailyBudget {
             return DailyBudget(
                 date = date,
-                totalBudget = totalBudget
+                totalBudget = totalBudget,
             )
         }
     }
@@ -34,7 +34,10 @@ class DailyBudget private constructor(
     val isExhausted: Boolean
         get() = remainingBudget <= 0
 
-    fun calculateDistributablePoints(requestedMax: Int = 1000, requestedMin: Int = 100): Int {
+    fun calculateDistributablePoints(
+        requestedMax: Int = 1000,
+        requestedMin: Int = 100,
+    ): Int {
         if (isExhausted || remainingBudget < requestedMin) {
             throw BudgetExhaustedException("오늘 예산이 소진되었습니다.")
         }

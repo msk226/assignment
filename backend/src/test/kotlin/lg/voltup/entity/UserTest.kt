@@ -6,7 +6,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class UserTest {
-
     @Test
     fun `create 메서드로 사용자를 생성할 수 있다`() {
         val nickname = "테스트유저"
@@ -16,7 +15,7 @@ class UserTest {
         assertAll(
             { assertNotNull(user) },
             { assertEquals(nickname, user.nickname) },
-            { assertNotNull(user.createdAt) }
+            { assertNotNull(user.createdAt) },
         )
     }
 

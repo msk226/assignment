@@ -11,15 +11,15 @@ data class PointResponse(
     val earnedAt: LocalDateTime,
     val expiresAt: LocalDateTime,
     val isExpired: Boolean,
-    val daysUntilExpiry: Long
+    val daysUntilExpiry: Long,
 )
 
 data class PointBalanceResponse(
     val totalBalance: Int,
-    val expiringWithin7Days: Int
+    val expiringWithin7Days: Int,
 )
 
 data class ExpiringPointsResponse(
     val points: List<PointResponse>,
-    val totalExpiringAmount: Int
+    val totalExpiringAmount: Int,
 )

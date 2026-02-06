@@ -9,11 +9,9 @@ class User private constructor(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-
     @Column(unique = true, nullable = false)
     val nickname: String,
-
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    val createdAt: LocalDateTime = LocalDateTime.now(),
 ) {
     companion object {
         fun create(nickname: String): User {

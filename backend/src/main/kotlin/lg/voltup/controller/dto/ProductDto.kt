@@ -14,7 +14,7 @@ data class ProductResponse(
     val stock: Int,
     val imageUrl: String?,
     val isActive: Boolean,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime,
 )
 
 data class ProductCreateRequest(
@@ -26,7 +26,7 @@ data class ProductCreateRequest(
     val price: Int,
     @field:PositiveOrZero(message = "재고는 0 이상이어야 합니다.")
     val stock: Int = 0,
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
 )
 
 data class ProductUpdateRequest(
@@ -38,5 +38,5 @@ data class ProductUpdateRequest(
     @field:PositiveOrZero(message = "재고는 0 이상이어야 합니다.")
     val stock: Int? = null,
     val imageUrl: String? = null,
-    val isActive: Boolean? = null
+    val isActive: Boolean? = null,
 )

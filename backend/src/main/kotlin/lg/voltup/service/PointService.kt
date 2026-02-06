@@ -12,11 +12,13 @@ import java.time.LocalDateTime
 
 @Service
 class PointService(
-    private val pointRepository: PointRepository
+    private val pointRepository: PointRepository,
 ) {
-
     @Transactional(readOnly = true)
-    fun getPoints(userId: Long, status: PointStatus? = null): List<PointResponse> {
+    fun getPoints(
+        userId: Long,
+        status: PointStatus? = null,
+    ): List<PointResponse> {
         return pointRepository.findAllByUserId(userId)
             .map { it.toResponse() }
             .filter { status == null || it.status == status.name }
@@ -31,7 +33,7 @@ class PointService(
 
         return PointBalanceResponse(
             totalBalance = totalBalance,
-            expiringWithin7Days = expiringAmount
+            expiringWithin7Days = expiringAmount,
         )
     }
 
@@ -41,19 +43,20 @@ class PointService(
 
         return ExpiringPointsResponse(
             points = expiringPoints.map { it.toResponse() },
-            totalExpiringAmount = expiringPoints.sumOf { it.availableAmount }
+            totalExpiringAmount = expiringPoints.sumOf { it.availableAmount },
         )
     }
 
-    private fun Point.toResponse() = PointResponse(
-        id = id,
-        amount = amount,
-        usedAmount = usedAmount,
-        availableAmount = availableAmount,
-        status = effectiveStatus.name,
-        earnedAt = earnedAt,
-        expiresAt = expiresAt,
-        isExpired = isExpired,
-        daysUntilExpiry = daysUntilExpiry
-    )
+    private fun Point.toResponse() =
+        PointResponse(
+            id = id,
+            amount = amount,
+            usedAmount = usedAmount,
+            availableAmount = availableAmount,
+            status = effectiveStatus.name,
+            earnedAt = earnedAt,
+            expiresAt = expiresAt,
+            isExpired = isExpired,
+            daysUntilExpiry = daysUntilExpiry,
+        )
 }

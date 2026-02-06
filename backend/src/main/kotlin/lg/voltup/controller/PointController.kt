@@ -19,28 +19,31 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/points")
 class PointController(
-    private val pointService: PointService
+    private val pointService: PointService,
 ) {
-
     @Operation(summary = "내 포인트 목록", description = "내 포인트 목록을 조회합니다. 상태별 필터링이 가능합니다.")
     @GetMapping
     fun getPoints(
         @RequestHeader("X-User-Id") userId: Long,
         @Parameter(description = "포인트 상태 필터 (EARNED, EXPIRED, CANCELED)")
-        @RequestParam(required = false) status: PointStatus?
+        @RequestParam(required = false) status: PointStatus?,
     ): ResponseEntity<List<PointResponse>> {
         return ResponseEntity.ok(pointService.getPoints(userId, status))
     }
 
     @Operation(summary = "포인트 잔액 조회", description = "사용 가능한 총 포인트를 조회합니다.")
     @GetMapping("/balance")
-    fun getBalance(@RequestHeader("X-User-Id") userId: Long): ResponseEntity<PointBalanceResponse> {
+    fun getBalance(
+        @RequestHeader("X-User-Id") userId: Long,
+    ): ResponseEntity<PointBalanceResponse> {
         return ResponseEntity.ok(pointService.getBalance(userId))
     }
 
     @Operation(summary = "만료 예정 포인트", description = "7일 내 만료 예정인 포인트를 조회합니다.")
     @GetMapping("/expiring")
-    fun getExpiringPoints(@RequestHeader("X-User-Id") userId: Long): ResponseEntity<ExpiringPointsResponse> {
+    fun getExpiringPoints(
+        @RequestHeader("X-User-Id") userId: Long,
+    ): ResponseEntity<ExpiringPointsResponse> {
         return ResponseEntity.ok(pointService.getExpiringPoints(userId))
     }
 }

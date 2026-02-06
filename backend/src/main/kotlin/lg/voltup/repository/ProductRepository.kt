@@ -1,8 +1,8 @@
 package lg.voltup.repository
 
-import lg.voltup.entity.Product
 import jakarta.persistence.LockModeType
 import jakarta.persistence.QueryHint
+import lg.voltup.entity.Product
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query

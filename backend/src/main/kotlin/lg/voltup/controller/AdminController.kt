@@ -18,9 +18,8 @@ class AdminController(
     private val adminService: AdminService,
     private val productService: ProductService,
     private val orderService: OrderService,
-    private val rouletteService: RouletteService
+    private val rouletteService: RouletteService,
 ) {
-
     // === 대시보드 ===
     @Operation(summary = "대시보드", description = "오늘의 예산 현황, 참여자 수, 지급 포인트를 조회합니다.")
     @GetMapping("/dashboard")
@@ -37,7 +36,9 @@ class AdminController(
 
     @Operation(summary = "예산 설정", description = "오늘의 일일 예산을 설정합니다.")
     @PutMapping("/budget")
-    fun updateBudget(@Valid @RequestBody request: BudgetUpdateRequest): ResponseEntity<BudgetResponse> {
+    fun updateBudget(
+        @Valid @RequestBody request: BudgetUpdateRequest,
+    ): ResponseEntity<BudgetResponse> {
         return ResponseEntity.ok(adminService.updateTodayBudget(request))
     }
 
@@ -50,7 +51,9 @@ class AdminController(
 
     @Operation(summary = "룰렛 참여 취소", description = "룰렛 참여를 취소하고 포인트를 회수합니다. 포인트를 사용한 경우 취소할 수 없습니다.")
     @PostMapping("/roulette/{participationId}/cancel")
-    fun cancelRouletteParticipation(@PathVariable participationId: Long): ResponseEntity<CancelParticipationResponse> {
+    fun cancelRouletteParticipation(
+        @PathVariable participationId: Long,
+    ): ResponseEntity<CancelParticipationResponse> {
         return ResponseEntity.ok(rouletteService.cancelParticipationByAdmin(participationId))
     }
 
@@ -63,7 +66,9 @@ class AdminController(
 
     @Operation(summary = "상품 등록", description = "새 상품을 등록합니다.")
     @PostMapping("/products")
-    fun createProduct(@Valid @RequestBody request: ProductCreateRequest): ResponseEntity<ProductResponse> {
+    fun createProduct(
+        @Valid @RequestBody request: ProductCreateRequest,
+    ): ResponseEntity<ProductResponse> {
         return ResponseEntity.ok(productService.createProduct(request))
     }
 
@@ -71,14 +76,16 @@ class AdminController(
     @PutMapping("/products/{productId}")
     fun updateProduct(
         @PathVariable productId: Long,
-        @Valid @RequestBody request: ProductUpdateRequest
+        @Valid @RequestBody request: ProductUpdateRequest,
     ): ResponseEntity<ProductResponse> {
         return ResponseEntity.ok(productService.updateProduct(productId, request))
     }
 
     @Operation(summary = "상품 삭제", description = "상품을 비활성화합니다.")
     @DeleteMapping("/products/{productId}")
-    fun deleteProduct(@PathVariable productId: Long): ResponseEntity<Unit> {
+    fun deleteProduct(
+        @PathVariable productId: Long,
+    ): ResponseEntity<Unit> {
         productService.deleteProduct(productId)
         return ResponseEntity.noContent().build()
     }
@@ -92,7 +99,9 @@ class AdminController(
 
     @Operation(summary = "주문 취소", description = "주문을 취소하고 포인트를 환불합니다.")
     @DeleteMapping("/orders/{orderId}")
-    fun cancelOrder(@PathVariable orderId: Long): ResponseEntity<OrderResponse> {
+    fun cancelOrder(
+        @PathVariable orderId: Long,
+    ): ResponseEntity<OrderResponse> {
         return ResponseEntity.ok(orderService.cancelOrder(orderId))
     }
 }
