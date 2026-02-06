@@ -25,9 +25,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    if (isLoading) {
-      return <LoadingScreen />;
-    }
+    return <LoadingScreen />;
   }
 
   if (!user) {
