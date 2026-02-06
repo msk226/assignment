@@ -12,7 +12,7 @@
 - **Backend API (Swagger)**: [\[Swagger UI URL\]](https://assignment-ybpt.onrender.com/swagger-ui/index.html)
 
 ### 2. 모바일 앱 (Mobile App)
-- **APK Download**: [Google Drive or Direct Link]
+- **APK Download**: [\[Google Drive\]](https://drive.google.com/file/d/1SnENoLP5ciCfXZnz71LGdu_C_K8kI1SW/view?usp=sharing)
 
 ### 3. CI/CD 파이프라인
 백엔드 배포 자동화가 GitHub Actions로 구축되어 있습니다.
