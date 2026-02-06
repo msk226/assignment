@@ -15,6 +15,7 @@ class Point private constructor(
     val userId: Long,
     val amount: Int,
     var usedAmount: Int = 0,
+    val participationId: Long? = null,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var status: PointStatus = PointStatus.EARNED,
@@ -28,6 +29,7 @@ class Point private constructor(
             userId: Long,
             amount: Int,
             expiresAt: LocalDateTime,
+            participationId: Long? = null,
         ): Point {
             require(amount > 0) { "포인트는 0보다 커야 합니다." }
             return Point(
@@ -35,14 +37,16 @@ class Point private constructor(
                 amount = amount,
                 status = PointStatus.EARNED,
                 expiresAt = expiresAt,
+                participationId = participationId,
             )
         }
 
         fun createWithDefaultExpiry(
             userId: Long,
             amount: Int,
+            participationId: Long? = null,
         ): Point {
-            return create(userId, amount, LocalDateTime.now().plusDays(DEFAULT_EXPIRY_DAYS))
+            return create(userId, amount, LocalDateTime.now().plusDays(DEFAULT_EXPIRY_DAYS), participationId)
         }
     }
 

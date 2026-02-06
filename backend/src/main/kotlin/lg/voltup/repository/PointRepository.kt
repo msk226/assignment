@@ -15,6 +15,8 @@ import java.time.LocalDateTime
 interface PointRepository : JpaRepository<Point, Long> {
     fun findAllByUserId(userId: Long): List<Point>
 
+    fun findByParticipationId(participationId: Long): Point?
+
     @Query("SELECT p FROM Point p WHERE p.userId = :userId AND p.status = :status AND p.expiresAt > :now AND p.usedAmount < p.amount ORDER BY p.expiresAt ASC")
     fun findValidPointsByUserId(
         userId: Long,
