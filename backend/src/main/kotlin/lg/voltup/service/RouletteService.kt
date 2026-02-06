@@ -19,7 +19,6 @@ import lg.voltup.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import java.time.LocalDateTime
 import kotlin.random.Random
 
 @Service
@@ -42,8 +41,8 @@ class RouletteService(
         val points = calculateRandomPoints(maxPoints)
 
         budget.distribute(points)
-        saveParticipation(userId, today, points)
-        savePoint(userId, points)
+        val participation = saveParticipation(userId, today, points)
+        savePoint(userId, points, participation.id)
 
         return RouletteSpinResponse(
             points = points,
@@ -119,19 +118,7 @@ class RouletteService(
     }
 
     private fun findMatchingPoint(participation: RouletteParticipation): lg.voltup.entity.Point? {
-        val userPoints = pointRepository.findAllByUserId(participation.userId)
-        return userPoints.find {
-            it.amount == participation.points &&
-                it.earnedAt.toLocalDate() == participation.date
-        }
-    }
-
-    private fun findMatchingPointWithLock(participation: RouletteParticipation): lg.voltup.entity.Point? {
-        val userPoints = pointRepository.findValidPointsByUserIdWithLock(participation.userId, LocalDateTime.now())
-        return userPoints.find {
-            it.amount == participation.points &&
-                it.earnedAt.toLocalDate() == participation.date
-        }
+        return pointRepository.findByParticipationId(participation.id)
     }
 
     private fun restoreBudgetIfTodayAndReturn(participation: RouletteParticipation): Boolean {
@@ -166,7 +153,7 @@ class RouletteService(
     }
 
     private fun findAndValidatePointForCancellation(participation: RouletteParticipation): Point? {
-        val point = findMatchingPointWithLock(participation)
+        val point = findMatchingPoint(participation)
         if (point != null && point.usedAmount > 0) {
             throw PointsAlreadyUsedException("이미 사용한 포인트가 있어 취소할 수 없습니다.")
         }
@@ -217,8 +204,8 @@ class RouletteService(
         userId: Long,
         date: LocalDate,
         points: Int,
-    ) {
-        participationRepository.save(
+    ): RouletteParticipation {
+        return participationRepository.save(
             RouletteParticipation.create(userId = userId, date = date, points = points),
         )
     }
@@ -226,8 +213,9 @@ class RouletteService(
     private fun savePoint(
         userId: Long,
         points: Int,
+        participationId: Long,
     ) {
-        pointRepository.save(Point.createWithDefaultExpiry(userId, points))
+        pointRepository.save(Point.createWithDefaultExpiry(userId, points, participationId))
     }
 
     private fun restoreBudgetIfToday(participation: RouletteParticipation) {
@@ -238,16 +226,6 @@ class RouletteService(
     }
 
     private fun removePointIfExists(participation: RouletteParticipation) {
-        val userPoints =
-            pointRepository.findValidPointsByUserIdWithLock(participation.userId, LocalDateTime.now())
-
-        // 참여 기록과 동일한 금액의 포인트를 찾아 논리 삭제
-        val matchingPoint =
-            userPoints.find {
-                it.amount == participation.points &&
-                    it.earnedAt.toLocalDate() == participation.date
-            }
-
-        matchingPoint?.cancel()
+        findMatchingPoint(participation)?.cancel()
     }
 }
