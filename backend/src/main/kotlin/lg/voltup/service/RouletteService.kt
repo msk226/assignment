@@ -34,9 +34,11 @@ class RouletteService(
     fun spinRoulette(userId: Long): RouletteSpinResponse {
         val today = LocalDate.now()
 
-        validateNotAlreadyParticipated(userId, today)
-
+        // 예산 락을 먼저 획득하여 동시성 제어의 시작점으로 사용
         val budget = getOrCreateBudgetWithLock(today)
+
+        // 락 획득 후 참여 여부 체크 (Double-Spin Race Condition 방지)
+        validateNotAlreadyParticipated(userId, today)
         val maxPoints = budget.calculateDistributablePoints()
         val points = calculateRandomPoints(maxPoints)
 

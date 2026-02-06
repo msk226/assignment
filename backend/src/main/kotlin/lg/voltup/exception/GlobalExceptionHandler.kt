@@ -96,15 +96,22 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException::class)
     fun handleDataIntegrityViolation(e: DataIntegrityViolationException): ResponseEntity<ErrorResponse> {
-        val message = when {
-            e.message?.contains("user_id") == true && e.message?.contains("date") == true ->
-                "오늘 이미 참여했습니다."
+        val rootMessage = e.rootCause?.message ?: e.message ?: ""
 
-            else -> "데이터 처리 중 오류가 발생했습니다."
+        // RouletteParticipation unique constraint 위반 (user_id, date)
+        val isParticipationDuplicate = rootMessage.contains("roulette_participation", ignoreCase = true) ||
+            (rootMessage.contains("user_id", ignoreCase = true) && rootMessage.contains("date", ignoreCase = true)) ||
+            rootMessage.contains("UK_", ignoreCase = true) // H2 unique constraint prefix
+
+        return if (isParticipationDuplicate) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ErrorResponse(status = 400, error = "Already Participated", message = "오늘 이미 참여했습니다.")
+            )
+        } else {
+            ResponseEntity.status(HttpStatus.CONFLICT).body(
+                ErrorResponse(status = 409, error = "Conflict", message = "데이터 처리 중 오류가 발생했습니다.")
+            )
         }
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(
-            ErrorResponse(status = 409, error = "Conflict", message = message)
-        )
     }
 
     @ExceptionHandler(IllegalArgumentException::class)
