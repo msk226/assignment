@@ -112,7 +112,7 @@ const ProductList: React.FC = () => {
                                 className={cn(
                                     "w-full py-2.5 rounded-full text-sm font-bold flex items-center justify-center transition-colors",
                                     currentBalance >= product.price && product.stock > 0
-                                        ? "bg-primary text-white hover:bg-blue-600 shadow-sm"
+                                        ? "bg-primary text-gray-900 hover:bg-primary/90 shadow-sm"
                                         : "bg-gray-100 text-gray-400 cursor-not-allowed"
                                 )}
                             >
