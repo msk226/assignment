@@ -1,0 +1,96 @@
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+complexity:
+  LongMethod:
+    threshold: 60
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 10
+  TooManyFunctions:
+    thresholdInFiles: 20
+    thresholdInClasses: 20
+    thresholdInInterfaces: 15
+    thresholdInObjects: 15
+    thresholdInEnums: 15
+  ComplexCondition:
+    threshold: 5
+  CyclomaticComplexMethod:
+    threshold: 15
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
+  TooGenericExceptionThrown:
+    active: true
+  SwallowedException:
+    active: true
+    excludes: ['**/test/**']
+
+
+naming:
+  FunctionNaming:
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
+  VariableNaming:
+    active: true
+
+style:
+  MagicNumber:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
+    ignoreNumbers:
+      - '-1'
+      - '0'
+      - '1'
+      - '2'
+      - '100'
+      - '1000'
+      - '30'
+      - '7'
+    ignoreHashCodeFunction: true
+    ignorePropertyDeclaration: true
+    ignoreLocalVariableDeclaration: true
+    ignoreConstantDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreAnnotation: true
+    ignoreNamedArgument: true
+    ignoreEnums: true
+  MaxLineLength:
+    maxLineLength: 160
+    excludeCommentStatements: true
+  WildcardImport:
+    active: true
+    excludeImports:
+      - 'java.util.*'
+      - 'kotlin.test.*'
+      - 'jakarta.persistence.*'
+      - 'org.springframework.web.bind.annotation.*'
+      - 'lg.voltup.controller.dto.*'
+  UnusedPrivateMember:
+    active: true
+    allowedNames: '(_|ignored|expected|serialVersionUID|earnedPoint|laterExpiringPoint|orderRepository)'
+    excludes: ['**/test/**', '**/Test.kt']
+  UnusedParameter:
+    excludes: ['**/exception/**']
+  ReturnCount:
+    max: 4
+  UnusedImports:
+    active: true
+  NewLineAtEndOfFile:
+    active: false
+  FunctionOnlyReturningConstant:
+    active: false
+
+performance:
+  SpreadOperator:
+    active: false
+
+empty-blocks:
+  EmptyFunctionBlock:
+    ignoreOverridden: true

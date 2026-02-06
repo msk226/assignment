@@ -27,16 +27,17 @@ class RouletteService(
     private val dailyBudgetRepository: DailyBudgetRepository,
     private val participationRepository: RouletteParticipationRepository,
     private val pointRepository: PointRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) {
-
     @Transactional
     fun spinRoulette(userId: Long): RouletteSpinResponse {
         val today = LocalDate.now()
 
-        validateNotAlreadyParticipated(userId, today)
-
+        // 예산 락을 먼저 획득하여 동시성 제어의 시작점으로 사용
         val budget = getOrCreateBudgetWithLock(today)
+
+        // 락 획득 후 참여 여부 체크 (Double-Spin Race Condition 방지)
+        validateNotAlreadyParticipated(userId, today)
         val maxPoints = budget.calculateDistributablePoints()
         val points = calculateRandomPoints(maxPoints)
 
@@ -47,22 +48,23 @@ class RouletteService(
         return RouletteSpinResponse(
             points = points,
             remainingBudget = budget.remainingBudget,
-            message = "${points}p를 획득했습니다!"
+            message = "${points}p를 획득했습니다!",
         )
     }
 
     @Transactional(readOnly = true)
     fun getStatus(userId: Long): RouletteStatusResponse {
         val today = LocalDate.now()
-        val budget = dailyBudgetRepository.findByDate(today)
-            ?: DailyBudget.create(today)
+        val budget =
+            dailyBudgetRepository.findByDate(today)
+                ?: DailyBudget.create(today)
         val participation = participationRepository.findByUserIdAndDate(userId, today)
 
         return RouletteStatusResponse(
             hasParticipatedToday = participation != null,
             todayPoints = participation?.points,
             remainingBudget = budget.remainingBudget,
-            totalBudget = budget.totalBudget
+            totalBudget = budget.totalBudget,
         )
     }
 
@@ -78,15 +80,16 @@ class RouletteService(
                 points = participation.points,
                 status = participation.status.name,
                 createdAt = participation.createdAt,
-                cancelledAt = participation.cancelledAt
+                cancelledAt = participation.cancelledAt,
             )
         }
     }
 
     @Transactional
     fun cancelParticipation(participationId: Long) {
-        val participation = participationRepository.findByIdWithLock(participationId)
-            ?: throw ParticipationNotFoundException("참여 기록을 찾을 수 없습니다.")
+        val participation =
+            participationRepository.findByIdWithLock(participationId)
+                ?: throw ParticipationNotFoundException("참여 기록을 찾을 수 없습니다.")
 
         if (participation.isCancelled) {
             throw ParticipationAlreadyCancelledException("이미 취소된 참여입니다.")
@@ -110,7 +113,7 @@ class RouletteService(
                 isCancelled = participation.isCancelled,
                 isCancellable = !participation.isCancelled && !hasUsedPoints,
                 createdAt = participation.createdAt,
-                cancelledAt = participation.cancelledAt
+                cancelledAt = participation.cancelledAt,
             )
         }
     }
@@ -119,7 +122,7 @@ class RouletteService(
         val userPoints = pointRepository.findAllByUserId(participation.userId)
         return userPoints.find {
             it.amount == participation.points &&
-            it.earnedAt.toLocalDate() == participation.date
+                it.earnedAt.toLocalDate() == participation.date
         }
     }
 
@@ -127,7 +130,7 @@ class RouletteService(
         val userPoints = pointRepository.findValidPointsByUserIdWithLock(participation.userId, LocalDateTime.now())
         return userPoints.find {
             it.amount == participation.points &&
-            it.earnedAt.toLocalDate() == participation.date
+                it.earnedAt.toLocalDate() == participation.date
         }
     }
 
@@ -141,37 +144,58 @@ class RouletteService(
 
     @Transactional
     fun cancelParticipationByAdmin(participationId: Long): CancelParticipationResponse {
-        val participation = participationRepository.findByIdWithLock(participationId)
-            ?: throw ParticipationNotFoundException("참여 기록을 찾을 수 없습니다.")
+        val participation = findParticipationForCancellation(participationId)
+        val point = findAndValidatePointForCancellation(participation)
+
+        participation.cancel()
+        val budgetRestored = restoreBudgetIfTodayAndReturn(participation)
+        point?.cancel()
+
+        return buildCancelResponse(participationId, participation.points, budgetRestored)
+    }
+
+    private fun findParticipationForCancellation(participationId: Long): RouletteParticipation {
+        val participation =
+            participationRepository.findByIdWithLock(participationId)
+                ?: throw ParticipationNotFoundException("참여 기록을 찾을 수 없습니다.")
 
         if (participation.isCancelled) {
             throw ParticipationAlreadyCancelledException("이미 취소된 참여입니다.")
         }
+        return participation
+    }
 
+    private fun findAndValidatePointForCancellation(participation: RouletteParticipation): Point? {
         val point = findMatchingPointWithLock(participation)
         if (point != null && point.usedAmount > 0) {
             throw PointsAlreadyUsedException("이미 사용한 포인트가 있어 취소할 수 없습니다.")
         }
+        return point
+    }
 
-        participation.cancel()
-
-        val budgetRestored = restoreBudgetIfTodayAndReturn(participation)
-
-        point?.cancel()
-
+    private fun buildCancelResponse(
+        participationId: Long,
+        points: Int,
+        budgetRestored: Boolean,
+    ): CancelParticipationResponse {
+        val message =
+            if (budgetRestored) {
+                "${points}p 당첨이 취소되었습니다. 예산이 복구되었습니다."
+            } else {
+                "${points}p 당첨이 취소되었습니다."
+            }
         return CancelParticipationResponse(
             participationId = participationId,
-            cancelledPoints = participation.points,
+            cancelledPoints = points,
             budgetRestored = budgetRestored,
-            message = if (budgetRestored) {
-                "${participation.points}p 당첨이 취소되었습니다. 예산이 복구되었습니다."
-            } else {
-                "${participation.points}p 당첨이 취소되었습니다."
-            }
+            message = message,
         )
     }
 
-    private fun validateNotAlreadyParticipated(userId: Long, date: LocalDate) {
+    private fun validateNotAlreadyParticipated(
+        userId: Long,
+        date: LocalDate,
+    ) {
         if (participationRepository.existsByUserIdAndDate(userId, date)) {
             throw AlreadyParticipatedException("오늘 이미 참여했습니다.")
         }
@@ -182,17 +206,27 @@ class RouletteService(
             ?: dailyBudgetRepository.save(DailyBudget.create(date))
     }
 
-    private fun calculateRandomPoints(maxPoints: Int, minPoints: Int = 100): Int {
+    private fun calculateRandomPoints(
+        maxPoints: Int,
+        minPoints: Int = 100,
+    ): Int {
         return if (maxPoints < minPoints) maxPoints else Random.nextInt(minPoints, maxPoints + 1)
     }
 
-    private fun saveParticipation(userId: Long, date: LocalDate, points: Int) {
+    private fun saveParticipation(
+        userId: Long,
+        date: LocalDate,
+        points: Int,
+    ) {
         participationRepository.save(
-            RouletteParticipation.create(userId = userId, date = date, points = points)
+            RouletteParticipation.create(userId = userId, date = date, points = points),
         )
     }
 
-    private fun savePoint(userId: Long, points: Int) {
+    private fun savePoint(
+        userId: Long,
+        points: Int,
+    ) {
         pointRepository.save(Point.createWithDefaultExpiry(userId, points))
     }
 
@@ -208,10 +242,11 @@ class RouletteService(
             pointRepository.findValidPointsByUserIdWithLock(participation.userId, LocalDateTime.now())
 
         // 참여 기록과 동일한 금액의 포인트를 찾아 논리 삭제
-        val matchingPoint = userPoints.find {
-            it.amount == participation.points &&
-            it.earnedAt.toLocalDate() == participation.date
-        }
+        val matchingPoint =
+            userPoints.find {
+                it.amount == participation.points &&
+                    it.earnedAt.toLocalDate() == participation.date
+            }
 
         matchingPoint?.cancel()
     }

@@ -5,7 +5,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class OrderStatusTest {
-
     @Test
     fun `OrderStatus는 COMPLETED와 CANCELLED 값을 가진다`() {
         val values = OrderStatus.entries

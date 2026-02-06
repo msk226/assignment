@@ -19,16 +19,18 @@ import java.time.LocalDateTime
 class OrderService(
     private val orderRepository: OrderRepository,
     private val productRepository: ProductRepository,
-    private val pointRepository: PointRepository
+    private val pointRepository: PointRepository,
 ) {
-
     @Transactional(readOnly = true)
     fun getAllOrders(): List<OrderResponse> {
         return orderRepository.findAllByOrderByCreatedAtDesc().map { it.toResponse() }
     }
-    
+
     @Transactional
-    fun createOrder(userId: Long, request: OrderCreateRequest): OrderResponse {
+    fun createOrder(
+        userId: Long,
+        request: OrderCreateRequest,
+    ): OrderResponse {
         // 1. 상품 조회 (비관적 락 적용)
         val product = findProductByIdWithLock(request.productId)
         product.validatePurchasable()
@@ -40,12 +42,13 @@ class OrderService(
         product.purchase()
 
         // 4. 주문 생성
-        val order = Order.create(
-            userId = userId,
-            productId = product.id,
-            productName = product.name,
-            pointsUsed = product.price
-        )
+        val order =
+            Order.create(
+                userId = userId,
+                productId = product.id,
+                productName = product.name,
+                pointsUsed = product.price,
+            )
 
         return orderRepository.save(order).toResponse()
     }
@@ -71,7 +74,10 @@ class OrderService(
             ?: throw OrderNotFoundException("주문을 찾을 수 없습니다.")
     }
 
-    private fun refundPoints(userId: Long, amount: Int) {
+    private fun refundPoints(
+        userId: Long,
+        amount: Int,
+    ) {
         pointRepository.save(Point.createWithDefaultExpiry(userId, amount))
     }
 
@@ -84,14 +90,17 @@ class OrderService(
             ?: throw ProductNotFoundException("상품을 찾을 수 없습니다.")
     }
 
-    private fun deductPointsWithValidation(userId: Long, requiredAmount: Int) {
+    private fun deductPointsWithValidation(
+        userId: Long,
+        requiredAmount: Int,
+    ) {
         val validPoints =
             pointRepository.findValidPointsByUserIdWithLock(userId, LocalDateTime.now())
         val availableBalance = validPoints.sumOf { it.availableAmount }
 
         if (availableBalance < requiredAmount) {
             throw InsufficientPointsException(
-                "포인트가 부족합니다. (보유: ${availableBalance}p, 필요: ${requiredAmount}p)"
+                "포인트가 부족합니다. (보유: ${availableBalance}p, 필요: ${requiredAmount}p)",
             )
         }
 
@@ -102,13 +111,14 @@ class OrderService(
         }
     }
 
-    private fun Order.toResponse() = OrderResponse(
-        id = id,
-        userId = userId,
-        productId = productId,
-        productName = productName,
-        pointsUsed = pointsUsed,
-        status = status,
-        createdAt = createdAt
-    )
+    private fun Order.toResponse() =
+        OrderResponse(
+            id = id,
+            userId = userId,
+            productId = productId,
+            productName = productName,
+            pointsUsed = pointsUsed,
+            status = status,
+            createdAt = createdAt,
+        )
 }

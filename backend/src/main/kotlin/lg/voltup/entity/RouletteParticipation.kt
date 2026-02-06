@@ -8,37 +8,34 @@ import java.time.LocalDateTime
 @Entity
 @Table(
     name = "roulette_participations",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id", "date"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["user_id", "date"])],
 )
 class RouletteParticipation private constructor(
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-
     @Column(name = "user_id", nullable = false)
     val userId: Long,
-
     @Column(nullable = false)
     val date: LocalDate,
-
     val points: Int,
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var status: ParticipationStatus = ParticipationStatus.PARTICIPATED,
-
     val createdAt: LocalDateTime = LocalDateTime.now(),
-
-    var cancelledAt: LocalDateTime? = null
+    var cancelledAt: LocalDateTime? = null,
 ) {
     companion object {
-        fun create(userId: Long, date: LocalDate, points: Int): RouletteParticipation {
+        fun create(
+            userId: Long,
+            date: LocalDate,
+            points: Int,
+        ): RouletteParticipation {
             return RouletteParticipation(
                 userId = userId,
                 date = date,
                 points = points,
-                status = ParticipationStatus.PARTICIPATED
+                status = ParticipationStatus.PARTICIPATED,
             )
         }
     }

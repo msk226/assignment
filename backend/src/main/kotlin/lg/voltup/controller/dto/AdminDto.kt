@@ -7,12 +7,12 @@ data class BudgetResponse(
     val date: LocalDate,
     val totalBudget: Int,
     val usedBudget: Int,
-    val remainingBudget: Int
+    val remainingBudget: Int,
 )
 
 data class BudgetUpdateRequest(
     @field:Positive(message = "예산은 양수여야 합니다.")
-    val totalBudget: Int
+    val totalBudget: Int,
 )
 
 data class DashboardResponse(
@@ -21,5 +21,5 @@ data class DashboardResponse(
     val usedBudget: Int,
     val remainingBudget: Int,
     val participantCount: Long,
-    val totalPointsDistributed: Int
+    val totalPointsDistributed: Int,
 )

@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 
 data class OrderCreateRequest(
     @field:Positive(message = "상품 ID는 양수여야 합니다.")
-    val productId: Long
+    val productId: Long,
 )
 
 data class OrderResponse(
@@ -16,5 +16,5 @@ data class OrderResponse(
     val productName: String,
     val pointsUsed: Int,
     val status: OrderStatus,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime,
 )

@@ -13,21 +13,22 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/orders")
 class OrderController(
-    private val orderService: OrderService
+    private val orderService: OrderService,
 ) {
-
     @Operation(summary = "상품 주문", description = "포인트를 사용하여 상품을 주문합니다.")
     @PostMapping
     fun createOrder(
         @RequestHeader("X-User-Id") userId: Long,
-        @Valid @RequestBody request: OrderCreateRequest
+        @Valid @RequestBody request: OrderCreateRequest,
     ): ResponseEntity<OrderResponse> {
         return ResponseEntity.ok(orderService.createOrder(userId, request))
     }
 
     @Operation(summary = "내 주문 내역", description = "내 주문 내역을 조회합니다.")
     @GetMapping
-    fun getOrders(@RequestHeader("X-User-Id") userId: Long): ResponseEntity<List<OrderResponse>> {
+    fun getOrders(
+        @RequestHeader("X-User-Id") userId: Long,
+    ): ResponseEntity<List<OrderResponse>> {
         return ResponseEntity.ok(orderService.getUserOrders(userId))
     }
 }

@@ -14,9 +14,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/products")
 class ProductController(
-    private val productService: ProductService
+    private val productService: ProductService,
 ) {
-
     @Operation(summary = "상품 목록 조회", description = "판매 중인 상품 목록을 조회합니다.")
     @GetMapping
     fun getProducts(): ResponseEntity<List<ProductResponse>> {
@@ -25,7 +24,9 @@ class ProductController(
 
     @Operation(summary = "상품 상세 조회", description = "상품 상세 정보를 조회합니다.")
     @GetMapping("/{productId}")
-    fun getProduct(@PathVariable productId: Long): ResponseEntity<ProductResponse> {
+    fun getProduct(
+        @PathVariable productId: Long,
+    ): ResponseEntity<ProductResponse> {
         return ResponseEntity.ok(productService.getProduct(productId))
     }
 }

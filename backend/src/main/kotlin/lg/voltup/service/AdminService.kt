@@ -14,10 +14,8 @@ import java.time.LocalDate
 @Transactional
 class AdminService(
     private val dailyBudgetRepository: DailyBudgetRepository,
-    private val participationRepository: RouletteParticipationRepository
+    private val participationRepository: RouletteParticipationRepository,
 ) {
-
-
     fun getTodayBudget(): BudgetResponse {
         val budget = getOrCreateTodayBudget()
         return budget.toResponse()
@@ -25,8 +23,9 @@ class AdminService(
 
     fun updateTodayBudget(request: BudgetUpdateRequest): BudgetResponse {
         val today = LocalDate.now()
-        val budget = dailyBudgetRepository.findByDateWithLock(today)
-            ?: dailyBudgetRepository.save(DailyBudget.create(today, request.totalBudget))
+        val budget =
+            dailyBudgetRepository.findByDateWithLock(today)
+                ?: dailyBudgetRepository.save(DailyBudget.create(today, request.totalBudget))
 
         budget.updateTotalBudget(request.totalBudget)
         return budget.toResponse()
@@ -44,7 +43,7 @@ class AdminService(
             usedBudget = budget.usedBudget,
             remainingBudget = budget.remainingBudget,
             participantCount = participantCount,
-            totalPointsDistributed = totalPointsDistributed
+            totalPointsDistributed = totalPointsDistributed,
         )
     }
 
@@ -53,10 +52,11 @@ class AdminService(
             ?: dailyBudgetRepository.save(DailyBudget.create(LocalDate.now()))
     }
 
-    private fun DailyBudget.toResponse() = BudgetResponse(
-        date = date,
-        totalBudget = totalBudget,
-        usedBudget = usedBudget,
-        remainingBudget = remainingBudget
-    )
+    private fun DailyBudget.toResponse() =
+        BudgetResponse(
+            date = date,
+            totalBudget = totalBudget,
+            usedBudget = usedBudget,
+            remainingBudget = remainingBudget,
+        )
 }

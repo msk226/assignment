@@ -10,7 +10,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class PointTest {
-
     @Test
     fun `create 메서드로 포인트를 생성할 수 있다`() {
         val userId = 1L
@@ -25,7 +24,7 @@ class PointTest {
             { assertEquals(amount, point.amount) },
             { assertEquals(0, point.usedAmount) },
             { assertEquals(expiresAt, point.expiresAt) },
-            { assertEquals(PointStatus.EARNED, point.status) }
+            { assertEquals(PointStatus.EARNED, point.status) },
         )
     }
 
@@ -43,24 +42,26 @@ class PointTest {
             { assertEquals(userId, point.userId) },
             { assertEquals(amount, point.amount) },
             { assertTrue(point.expiresAt.isAfter(expectedExpiresAt.minusSeconds(1))) },
-            { assertTrue(point.expiresAt.isBefore(expectedExpiresAt.plusSeconds(1))) }
+            { assertTrue(point.expiresAt.isBefore(expectedExpiresAt.plusSeconds(1))) },
         )
     }
 
     @Test
     fun `포인트 금액이 0일 경우 예외가 발생한다`() {
-        val exception = assertThrows<IllegalArgumentException> {
-            Point.create(1L, 0, LocalDateTime.now().plusDays(30))
-        }
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                Point.create(1L, 0, LocalDateTime.now().plusDays(30))
+            }
 
         assertEquals("포인트는 0보다 커야 합니다.", exception.message)
     }
 
     @Test
     fun `포인트 금액이 음수일 경우 예외가 발생한다`() {
-        val exception = assertThrows<IllegalArgumentException> {
-            Point.create(1L, -100, LocalDateTime.now().plusDays(30))
-        }
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                Point.create(1L, -100, LocalDateTime.now().plusDays(30))
+            }
 
         assertEquals("포인트는 0보다 커야 합니다.", exception.message)
     }
