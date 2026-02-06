@@ -1,73 +1,98 @@
-# React + TypeScript + Vite
+# 🎰 Point Roulette - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+"포인트 룰렛" 서비스의 사용자용 웹 프론트엔드 프로젝트입니다.
+React (Vite)와 TypeScript를 기반으로 구축되었으며, 모바일 환경을 고려한 반응형 디자인과 부드러운 애니메이션을 제공합니다.
 
-Currently, two official plugins are available:
+## 🛠 기술 스택 (Tech Stack)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Core**: React 19, TypeScript, Vite
+- **Styling**: TailwindCSS 4, CSS Modules
+- **State Management**: TanStack Query (React Query)
+- **Routing**: React Router DOM 7
+- **HTTP Client**: Axios (Interceptors 적용)
+- **UI Components**: Lucide React (Icons), Framer Motion (Animations)
 
-## React Compiler
+## ✨ 주요 기능 (Key Features)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+이 프로젝트는 과제 요구사항을 충족하기 위해 다음과 같은 기능을 구현했습니다:
 
-## Expanding the ESLint configuration
+### 1. 사용자 인증 (Mock)
+- **로그인**: 닉네임 입력만으로 간편하게 로그인할 수 있습니다.
+- **세션 관리**: `Context API`와 `localStorage`를 활용하여 로그인 상태를 유지합니다.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 2. 룰렛 게임 (홈)
+- **일일 참여 제한**: 하루에 한 번만 룰렛을 돌릴 수 있습니다.
+- **예산 관리**: 전체 일일 예산과 잔여 예산을 시각적으로 보여줍니다 (Progress Bar).
+- **애니메이션**: `framer-motion`을 활용한 부드러운 룰렛 회전 및 결과 당첨 효과를 제공합니다.
+- **예산 소진 처리**: 예산이 소진된 경우, 룰렛 참여가 불가능함을 알립니다.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 3. 내 포인트 관리
+- **포인트 내역**: 획득, 사용, 만료된 포인트 내역을 조회할 수 있습니다.
+- **유효기간 알림**: 7일 이내 만료 예정인 포인트에 대해 별도 알림을 표시합니다.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 4. 상품 구매
+- **상품 목록**: 구매 가능한 상품 목록을 카드 형태로 제공합니다.
+- **구매 가능 여부**: 현재 보유 포인트로 구매 가능한지 즉시 확인할 수 있습니다.
+- **주문 내역**: 사용자가 구매한 상품의 주문 내역을 조회할 수 있습니다.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 5. UI/UX
+- **모바일 퍼스트**: 모바일 뷰포트에 최적화된 레이아웃 (`MobileLayout`).
+- **인터랙션**: 버튼 클릭, 페이지 전환, 데이터 로딩 시 사용자 피드백(Skeleton, Spinner) 제공.
+- **에러 처리**: 네트워크 요청 실패 시 `alert` 또는 에러 페이지로 안내.
+
+## 🚀 시작하기 (Getting Started)
+
+### 1. 설치 (Installation)
+프로젝트 루트에서 의존성을 설치합니다.
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. 환경 변수 설정 (Environment Setup)
+`.env` 파일을 생성하고 백엔드 API 주소를 설정합니다 (선택 사항, 기본값 설정됨).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_API_URL=https://your-backend-api.com/
 ```
+> 기본값: `https://assignment-ybpt.onrender.com/`
+
+### 3. 개발 서버 실행 (Run Dev Server)
+
+```bash
+npm run dev
+```
+브라우저에서 `http://localhost:5173`으로 접속합니다.
+
+### 4. 빌드 (Build)
+
+```bash
+npm run build
+```
+
+## 📂 프로젝트 구조 (Project Structure)
+
+```
+src/
+├── api/             # Axios 클라이언트 및 API 설정
+├── assets/          # 이미지, 폰트 등 정적 자산
+├── components/      # 재사용 가능한 UI 컴포넌트
+│   ├── MobileLayout.tsx  # 모바일 레이아웃 래퍼
+│   ├── RouletteWheel.tsx # 룰렛 애니메이션 컴포넌트
+│   └── ...
+├── contexts/        # Context API (AuthContext 등)
+├── lib/             # 유틸리티 함수 (cn 등)
+├── pages/           # 페이지 컴포넌트 (Route 대응)
+│   ├── Home.tsx          # 메인 (룰렛)
+│   ├── Login.tsx         # 로그인
+│   ├── MyPoints.tsx      # 내 포인트
+│   ├── ProductList.tsx   # 상품 목록
+│   └── ...
+├── App.tsx          # 라우팅 및 앱 진입점
+└── main.tsx         # React 렌더링 진입점
+```
+
+## 📝 과제 제출 정보
+
+- **Repository**: [GitHub Repository Link]
+- **Deployment**: [Vercel Deployment Link]
