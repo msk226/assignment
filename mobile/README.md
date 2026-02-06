@@ -18,11 +18,16 @@ Point Roulette 서비스의 모바일 앱 프로젝트입니다. Flutter를 사�
 - **Navigation**: 안드로이드 뒤로가기 버튼(Physical Back Button) 핸들링 및 히스토리 관리
 
 ### 2. 향상된 사용자 경험 (UX)
+
+<img width="330" height="692" alt="스크린샷 2026-02-06 오후 4 32 17" src="https://github.com/user-attachments/assets/36da8677-2059-4a83-bd8a-63ec70eaaddf" />
+<img width="320" height="686" alt="스크린샷 2026-02-06 오후 4 32 08" src="https://github.com/user-attachments/assets/d6f7044d-3ba3-4a39-8eab-3bcd60dd0d5c" />
+
 - **스플래시 스크린**: 앱 시작 시 브랜드 아이덴티티를 보여주는 네이티브 스플래시 적용
 - **로딩 인디케이터**: 웹 페이지 로딩 중 네이티브 스피너(Loading Spinner) 표시로 대기 시간 인지 제공
-- **키보드 처러**: 입력창 등에서 키보드 오버레이 처리
 
 ### 3. 에러 핸들링
+<img width="334" height="693" alt="스크린샷 2026-02-06 오후 4 32 28" src="https://github.com/user-attachments/assets/196d0fae-795a-4243-a5e8-9366f6af433f" />
+
 - **네트워크 연결 상태 감지**: 오프라인 상태이거나 리소스 로딩 실패 시 커스텀 에러 페이지 노출
 - **재시도 메커니즘**: 에러 화면에서 '재시도' 버튼을 통해 페이지 리로드 지원
 
