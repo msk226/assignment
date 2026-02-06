@@ -4,8 +4,6 @@
 
 ## 📝 제출 정보 (Submission)
 
-과제 제출을 위한 필수 정보입니다.
-
 ### 1. 배포 URL (Deployment)
 - **Frontend**: [\[Vercel Deployment URL\]](https://assignment-nine-lemon.vercel.app)
 - **Admin**: [\[Admin Deployment URL\]](https://assignment-fexi.vercel.app/)
@@ -16,6 +14,8 @@
 
 ### 3. CI/CD 파이프라인
 백엔드 배포 자동화가 GitHub Actions로 구축되어 있습니다.
+- Render를 활용하여 배포를 진행합니다.
+- Github Actions를 활용하여 CI를 진행합니다.
 - 설정 파일: `.github/workflows/backend-ci.yml` 
 
 ### 4. AI 활용 리포트 (AI Collaboration)
