@@ -6,10 +6,10 @@
 
 # Project Files
 .claude
-PROMPT.md
 assignment.md
 point-roulette-guide.md
 design-system.md
+AI_COLLABORATION_REPORT.md
 
 # Dependencies
 node_modules/
