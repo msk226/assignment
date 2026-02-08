@@ -9,16 +9,22 @@
 - **Admin**: [\[Admin Deployment URL\]](https://assignment-fexi.vercel.app/)
 - **Backend API (Swagger)**: [\[Swagger UI URL\]](https://assignment-ybpt.onrender.com/swagger-ui/index.html)
 
-### 2. 모바일 앱 (Mobile App)
+### 2. 테스트 계정 (Test Account)
+```
+닉네임: testuser
+```
+> 로그인 시 닉네임만 입력하면 자동으로 계정이 생성됩니다.
+
+### 3. 모바일 앱 (Mobile App)
 - **APK Download**: [\[Google Drive\]](https://drive.google.com/file/d/1SnENoLP5ciCfXZnz71LGdu_C_K8kI1SW/view?usp=sharing)
 
-### 3. CI/CD 파이프라인
+### 4. CI/CD 파이프라인
 백엔드 배포 자동화가 GitHub Actions로 구축되어 있습니다.
 - Render를 활용하여 배포를 진행합니다.
 - Github Actions를 활용하여 CI를 진행합니다.
 - 설정 파일: `.github/workflows/backend-ci.yml` 
 
-### 4. AI 활용 리포트 (AI Collaboration)
+### 5. AI 활용 리포트 (AI Collaboration)
 개발 과정에서의 AI 협업 프롬프트 기록입니다.
 - **Report**: [PROMPT.md](./PROMPT.md)
 
