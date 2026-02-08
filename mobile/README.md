@@ -2,6 +2,15 @@
 
 Point Roulette 서비스의 모바일 앱 프로젝트입니다. Flutter를 사용하여 크로스 플랫폼(Android, iOS)을 지원하며, 웹뷰(WebView) 기반의 하이브리드 앱으로 구현되었습니다. 웹 프론트엔드(`frontend`)를 네이티브 앱 환경에서 구동하기 위한 래퍼(Wrapper) 앱이며, 기본적인 웹뷰 기능 외에도 네이티브 경험을 향상시키기 위한 다양한 부가 기능이 포함되어 있습니다.
 
+## 📑 목차
+
+- [🛠 기술 스택 (Tech Stack)](#-기술-스택-tech-stack)
+- [✨ 주요 기능 (Key Features)](#-주요-기능-key-features)
+- [🚀 시작하기 (Getting Started)](#-시작하기-getting-started)
+- [📂 프로젝트 구조 (Project Structure)](#-프로젝트-구조-project-structure)
+
+---
+
 ## 🛠 기술 스택 (Tech Stack)
 
 - **Framework**: Flutter (Dart)

@@ -2,6 +2,16 @@
 
 매일 룰렛을 돌려 포인트를 획득하고, 획득한 포인트로 상품을 구매하는 포인트 룰렛 서비스의 백엔드 입니다.
 
+## 📑 목차
+
+- [🛠 기술 스택 (Tech Stack)](#-기술-스택-tech-stack)
+- [✨ 주요 기능 (Key Features)](#-주요-기능-key-features)
+- [🚀 시작하기 (Getting Started)](#-시작하기-getting-started)
+- [핵심 설계 (Core Design)](#핵심-설계-core-design)
+- [📂 프로젝트 구조 (Project Structure)](#-프로젝트-구조-project-structure)
+
+---
+
 ## 🛠 기술 스택 (Tech Stack)
 
 - **Language**: Kotlin 1.9.25

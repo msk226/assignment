@@ -3,6 +3,15 @@
 포인트 룰렛 이벤트 서비스를 운영하기 위한 관리자 대시보드입니다.
 이 어드민 페이지를 통해 **일일 예산 관리, 상품 CRUD, 주문 취소/환불, 룰렛 참여 취소** 등의 운영 업무를 수행할 수 있습니다.
 
+## 📑 목차
+
+- [🛠 기술 스택 (Tech Stack)](#-기술-스택-tech-stack)
+- [✨ 주요 기능 (Key Features)](#-주요-기능-key-features)
+- [🚀 시작하기 (Getting Started)](#-시작하기-getting-started)
+- [📂 프로젝트 구조 (Project Structure)](#-프로젝트-구조-project-structure)
+
+---
+
 ## 🛠 기술 스택 (Tech Stack)
 
 - **Core**: React 18, TypeScript, Vite
