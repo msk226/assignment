@@ -251,9 +251,7 @@ AI를 활용하여 프로젝트 전체 구조 설계, 기술 스택 선정, 아�
 Xcode build done.                                           10.6s
 Failed to build iOS app
 Uncategorized (Xcode): Command CodeSign failed with a nonzero exit code
-
-
-Could not build the application for the simulator.
+> Could not build the application for the simulator.
 Error launching application on iPhone 16e.
 > 문제 분석해줘
 
