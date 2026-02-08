@@ -100,8 +100,3 @@ src/
 ├── App.tsx          # 라우팅 및 앱 진입점
 └── main.tsx         # React 렌더링 진입점
 ```
-
-## 📝 과제 제출 정보
-
-- **Repository**: [GitHub Repository Link]
-- **Deployment**: [Vercel Deployment Link]
