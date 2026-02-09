@@ -16,7 +16,7 @@
 > 로그인 시 닉네임만 입력하면 자동으로 계정이 생성됩니다.
 
 ### 3. 모바일 앱 (Mobile App)
-- **APK Download**: [\[Google Drive\]](https://drive.google.com/file/d/1SnENoLP5ciCfXZnz71LGdu_C_K8kI1SW/view?usp=sharing)
+- **APK Download**: [\[Google Drive\]](https://drive.google.com/file/d/14BnWyNXuwlHFgSxJJyPmmTKbtdwiokff/view?usp=sharing)
 
 ### 4. CI/CD 파이프라인
 백엔드 배포 자동화가 GitHub Actions로 구축되어 있습니다.
