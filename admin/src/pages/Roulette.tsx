@@ -1,4 +1,4 @@
-import { Table, Button, Popconfirm, message, Spin, Tag, Tooltip } from 'antd';
+import { Table, Button, Popconfirm, message, Spin, Tag, Tooltip, Alert } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { rouletteApi, RouletteParticipation } from '../api/endpoints';
 
@@ -74,6 +74,12 @@ const Roulette: React.FC = () => {
         <div>
             {contextHolder}
             <h2 style={{ marginBottom: 16 }}>룰렛 참여 관리</h2>
+            <Alert
+                message="오늘 참여된 룰렛만 취소할 수 있습니다."
+                type="info"
+                showIcon
+                style={{ marginBottom: 16 }}
+            />
             {isLoading ? <Spin /> : <Table dataSource={participations} columns={columns} rowKey="id" />}
         </div>
     );
