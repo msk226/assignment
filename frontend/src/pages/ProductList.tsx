@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api/client';
-import { ShoppingBag, Coins } from 'lucide-react';
+import { ShoppingBag, Coins, AlertCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface Product {
@@ -21,7 +21,7 @@ interface PointBalance {
 const ProductList: React.FC = () => {
     const queryClient = useQueryClient();
 
-    const { data: products, isLoading: isProductsLoading } = useQuery<Product[]>({
+    const { data: products, isLoading: isProductsLoading, isError: isProductsError } = useQuery<Product[]>({
         queryKey: ['products'],
         queryFn: async () => {
             const res = await apiClient.get('/api/products');
@@ -29,7 +29,7 @@ const ProductList: React.FC = () => {
         }
     });
 
-    const { data: balance, isLoading: isBalanceLoading } = useQuery<PointBalance>({
+    const { data: balance, isLoading: isBalanceLoading, isError: isBalanceError } = useQuery<PointBalance>({
         queryKey: ['pointBalance'],
         queryFn: async () => {
             const res = await apiClient.get('/api/points/balance');
@@ -61,6 +61,21 @@ const ProductList: React.FC = () => {
 
     if (isProductsLoading || isBalanceLoading) {
         return <div className="flex justify-center items-center h-full">Loading...</div>;
+    }
+
+    if (isProductsError || isBalanceError) {
+        return (
+            <div className="flex flex-col justify-center items-center h-full gap-4 p-6">
+                <AlertCircle size={40} className="text-red-400" />
+                <p className="text-gray-600 text-sm text-center">상품 정보를 불러오는 데 실패했습니다.</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-6 py-2 bg-primary text-gray-900 rounded-full font-bold text-sm"
+                >
+                    다시 시도
+                </button>
+            </div>
+        );
     }
 
     const currentBalance = balance?.totalBalance || 0;

@@ -25,7 +25,7 @@ const Home: React.FC = () => {
     const [isSpinning, setIsSpinning] = useState(false);
     const [spinResult, setSpinResult] = useState<SpinResult | null>(null);
 
-    const { data: status, isLoading: isStatusLoading } = useQuery<RouletteStatus>({
+    const { data: status, isLoading: isStatusLoading, isError: isStatusError } = useQuery<RouletteStatus>({
         queryKey: ['rouletteStatus'],
         queryFn: async () => {
             const res = await apiClient.get('/api/roulette/status');
@@ -58,8 +58,23 @@ const Home: React.FC = () => {
         // Show Result Dialog/Toast here if needed, or just rely on the UI update
     };
 
-    if (isStatusLoading || !status) {
+    if (isStatusLoading) {
         return <div className="flex justify-center items-center h-full">Loading...</div>;
+    }
+
+    if (isStatusError || !status) {
+        return (
+            <div className="flex flex-col justify-center items-center h-full gap-4 p-6">
+                <AlertCircle size={40} className="text-red-400" />
+                <p className="text-gray-600 text-sm text-center">데이터를 불러오는 데 실패했습니다.</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-6 py-2 bg-primary text-gray-900 rounded-full font-bold text-sm"
+                >
+                    다시 시도
+                </button>
+            </div>
+        );
     }
 
     const budgetPercent = (status.remainingBudget / status.totalBudget) * 100;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api/client';
-import { ShoppingBag, Calendar } from 'lucide-react';
+import { ShoppingBag, Calendar, AlertCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface Order {
@@ -13,7 +13,7 @@ interface Order {
 }
 
 const OrderHistory: React.FC = () => {
-    const { data: orders, isLoading } = useQuery<Order[]>({
+    const { data: orders, isLoading, isError } = useQuery<Order[]>({
         queryKey: ['orders'],
         queryFn: async () => {
             const res = await apiClient.get('/api/orders');
@@ -23,6 +23,21 @@ const OrderHistory: React.FC = () => {
 
     if (isLoading) {
         return <div className="flex justify-center items-center h-full">Loading...</div>;
+    }
+
+    if (isError) {
+        return (
+            <div className="flex flex-col justify-center items-center h-full gap-4 p-6">
+                <AlertCircle size={40} className="text-red-400" />
+                <p className="text-gray-600 text-sm text-center">주문 내역을 불러오는 데 실패했습니다.</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-6 py-2 bg-primary text-gray-900 rounded-full font-bold text-sm"
+                >
+                    다시 시도
+                </button>
+            </div>
+        );
     }
 
     return (

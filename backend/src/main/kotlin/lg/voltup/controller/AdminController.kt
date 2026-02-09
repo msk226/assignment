@@ -10,6 +10,7 @@ import lg.voltup.service.ProductService
 import lg.voltup.service.RouletteService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
 
 @Tag(name = "어드민", description = "관리자 전용 API")
 @RestController
@@ -28,18 +29,21 @@ class AdminController(
     }
 
     // === 예산 관리 ===
-    @Operation(summary = "예산 조회", description = "오늘의 일일 예산을 조회합니다.")
+    @Operation(summary = "예산 조회", description = "특정 날짜의 일일 예산을 조회합니다. 날짜 미지정 시 오늘 기준으로 조회합니다.")
     @GetMapping("/budget")
-    fun getBudget(): ResponseEntity<BudgetResponse> {
-        return ResponseEntity.ok(adminService.getTodayBudget())
+    fun getBudget(
+        @RequestParam(required = false) date: LocalDate?,
+    ): ResponseEntity<BudgetResponse> {
+        return ResponseEntity.ok(adminService.getBudget(date ?: LocalDate.now()))
     }
 
-    @Operation(summary = "예산 설정", description = "오늘의 일일 예산을 설정합니다.")
+    @Operation(summary = "예산 설정", description = "특정 날짜의 일일 예산을 설정합니다. 날짜 미지정 시 오늘 기준으로 설정합니다.")
     @PutMapping("/budget")
     fun updateBudget(
+        @RequestParam(required = false) date: LocalDate?,
         @Valid @RequestBody request: BudgetUpdateRequest,
     ): ResponseEntity<BudgetResponse> {
-        return ResponseEntity.ok(adminService.updateTodayBudget(request))
+        return ResponseEntity.ok(adminService.updateBudget(date ?: LocalDate.now(), request))
     }
 
     // === 룰렛 참여 관리 ===

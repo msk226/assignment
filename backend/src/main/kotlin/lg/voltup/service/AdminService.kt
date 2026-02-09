@@ -17,15 +17,23 @@ class AdminService(
     private val participationRepository: RouletteParticipationRepository,
 ) {
     fun getTodayBudget(): BudgetResponse {
-        val budget = getOrCreateTodayBudget()
+        val budget = getOrCreateBudget(LocalDate.now())
+        return budget.toResponse()
+    }
+
+    fun getBudget(date: LocalDate): BudgetResponse {
+        val budget = getOrCreateBudget(date)
         return budget.toResponse()
     }
 
     fun updateTodayBudget(request: BudgetUpdateRequest): BudgetResponse {
-        val today = LocalDate.now()
+        return updateBudget(LocalDate.now(), request)
+    }
+
+    fun updateBudget(date: LocalDate, request: BudgetUpdateRequest): BudgetResponse {
         val budget =
-            dailyBudgetRepository.findByDateWithLock(today)
-                ?: dailyBudgetRepository.save(DailyBudget.create(today, request.totalBudget))
+            dailyBudgetRepository.findByDateWithLock(date)
+                ?: dailyBudgetRepository.save(DailyBudget.create(date, request.totalBudget))
 
         budget.updateTotalBudget(request.totalBudget)
         return budget.toResponse()
@@ -33,7 +41,7 @@ class AdminService(
 
     fun getDashboard(): DashboardResponse {
         val today = LocalDate.now()
-        val budget = getOrCreateTodayBudget()
+        val budget = getOrCreateBudget(today)
         val participantCount = participationRepository.countActiveByDate(today)
         val totalPointsDistributed = participationRepository.sumPointsByDate(today)
 
@@ -47,9 +55,9 @@ class AdminService(
         )
     }
 
-    private fun getOrCreateTodayBudget(): DailyBudget {
-        return dailyBudgetRepository.findByDate(LocalDate.now())
-            ?: dailyBudgetRepository.save(DailyBudget.create(LocalDate.now()))
+    private fun getOrCreateBudget(date: LocalDate): DailyBudget {
+        return dailyBudgetRepository.findByDate(date)
+            ?: dailyBudgetRepository.save(DailyBudget.create(date))
     }
 
     private fun DailyBudget.toResponse() =
