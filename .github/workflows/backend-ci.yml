@@ -1,3 +1,6 @@
+# Backend CI/CD Pipeline
+# Build & Test: GitHub Actions
+# Deploy: Render (auto-deploy on push via Render GitHub integration)
 name: Backend CI/CD
 
 on:
